@@ -3,72 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#10b981" />
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="记账助手">
   <title>记账助手</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/10605/10605942.png" type="image/png" />
   
-  <!-- Tailwind CSS -->
+  <!-- 1. Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary: '#059669', // Emerald 600
-            primaryLight: '#ecfdf5', // Emerald 50
+            primary: '#10b981', 
             secondary: '#3b82f6', 
-            background: '#f1f5f9', // Slate 100
-            surface: '#ffffff',
+            danger: '#ef4444', 
+            background: '#f8fafc', 
           },
-          boxShadow: {
-            'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-            'nav': '0 -1px 3px rgba(0,0,0,0.05)',
-            'float': '0 4px 14px rgba(0,0,0,0.15)'
+          padding: {
+            'safe': 'env(safe-area-inset-bottom)',
           },
-          fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { transform: 'translateY(10px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
           }
         }
       }
     }
   </script>
 
-  <!-- React Dependencies -->
+  <!-- 2. React Dependencies (Stable Versions) -->
   <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/prop-types/prop-types.min.js"></script>
   
-  <!-- Recharts -->
+  <!-- 3. Recharts (Chart Library) -->
   <script crossorigin src="https://unpkg.com/recharts@2.12.2/umd/Recharts.js"></script>
   
-  <!-- Babel -->
+  <!-- 4. Babel Standalone (Compiles JSX) -->
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
-    body { 
-      -webkit-tap-highlight-color: transparent; 
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #f1f5f9;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    /* Hide scrollbar */
+    body { -webkit-tap-highlight-color: transparent; }
+    /* Hide scrollbar for clean UI */
     ::-webkit-scrollbar { width: 0px; background: transparent; }
-    
-    /* Animations */
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    
-    .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    .animate-fade-in { animation: fadeIn 0.2s ease-out; }
-
-    /* Utilities */
-    .pb-safe { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); } /* For lists above nav */
-    .pb-safe-extra { padding-bottom: calc(8rem + env(safe-area-inset-bottom)); } /* For lists above fixed footer */
-    .pt-safe { padding-top: max(1rem, env(safe-area-inset-top)); }
   </style>
 <script type="importmap">
 {
@@ -81,408 +66,359 @@
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
-<body class="text-slate-800 antialiased select-none">
+<body class="bg-background text-slate-800 antialiased select-none pb-safe">
   <div id="root"></div>
 
-  <!-- Service Worker -->
+  <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
+        navigator.serviceWorker.register('./sw.js')
+          .then(registration => console.log('SW registered'))
+          .catch(err => console.log('SW failed', err));
       });
     }
   </script>
 
   <!-- Main Application Code -->
   <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
+    const { useState, useEffect, useMemo, Fragment } = React;
+    // Safely access Recharts globals
     const Recharts = window.Recharts || {};
     const { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } = Recharts;
 
-    // --- ICONS ---
+    // --- ICONS (SVG Components) ---
     const Icons = {
-      Home: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 14.25h14.25M5.106 18.75L15.638 10.5a2.25 2.25 0 0 1 3.118 0l2.375 1.875M7.5 14.25V6a2.25 2.25 0 0 1 2.25-2.25h1.5A2.25 2.25 0 0 1 13.5 6v8.25m3.75-3.75h3" /></svg>,
-      Box: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>,
-      PlusCircle: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>,
+      ArchiveBox: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>,
+      CurrencyYen: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>,
+      ChartBar: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 14.25h14.25M5.106 18.75L15.638 10.5a2.25 2.25 0 0 1 3.118 0l2.375 1.875M7.5 14.25V6a2.25 2.25 0 0 1 2.25-2.25h1.5A2.25 2.25 0 0 1 13.5 6v8.25m3.75-3.75h3" /></svg>,
       Clock: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>,
-      Plus: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>,
+      Cog6Tooth: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>,
+      ArrowDownTray: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>,
+      ArrowUpTray: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>,
       Trash: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>,
-      XMark: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>,
-      Settings: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>,
-      Cart: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>,
-      ArrowDown: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>,
-      ArrowUp: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
+      ShoppingCart: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg>,
+      Plus: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>,
+      XMark: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
     };
 
     // --- UTILS ---
     const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
-    const formatCurrency = (val) => new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(val);
+    
+    const formatCurrency = (amount) => new Intl.NumberFormat('zh-CN', {
+      style: 'currency', currency: 'CNY', minimumFractionDigits: 2
+    }).format(amount);
+
+    const formatDate = (timestamp) => new Date(timestamp).toLocaleString('zh-CN', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
     const exportData = (data, filename) => {
+      const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(data))}`;
       const link = document.createElement("a");
-      link.href = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(data))}`;
+      link.href = jsonString;
       link.download = `${filename}.json`;
       link.click();
     };
 
     // --- UI COMPONENTS ---
-    const Card = ({ children, className = '', onClick }) => (
-      <div onClick={onClick} className={`bg-white rounded-2xl shadow-soft p-4 ${className}`}>{children}</div>
+    const Card = ({ children, className = '' }) => (
+      <div className={`bg-white rounded-xl shadow-sm border border-slate-100 p-4 ${className}`}>{children}</div>
     );
 
-    const ModalSheet = ({ isOpen, onClose, title, children }) => {
-      if (!isOpen) return null;
+    const Button = ({ children, variant = 'primary', className = '', ...props }) => {
+      const variants = {
+        primary: "bg-primary text-white active:bg-emerald-600",
+        secondary: "bg-secondary text-white active:bg-blue-600",
+        danger: "bg-danger text-white active:bg-red-600",
+        outline: "border border-slate-300 text-slate-700 active:bg-slate-50"
+      };
       return (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
-          <div className="relative bg-white rounded-t-3xl p-5 shadow-2xl animate-slide-up pb-safe max-h-[85vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-slate-800">{title}</h3>
-              <button onClick={onClose} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200"><Icons.XMark className="w-5 h-5"/></button>
-            </div>
-            {children}
+        <button className={`px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${className}`} {...props}>
+          {children}
+        </button>
+      );
+    };
+
+    const Input = ({ label, className = '', ...props }) => (
+      <div className="mb-3">
+        {label && <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>}
+        <input className={`w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all ${className}`} {...props} />
+      </div>
+    );
+
+    const Select = ({ label, className = '', children, ...props }) => (
+      <div className="mb-3">
+        {label && <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>}
+        <select className={`w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white ${className}`} {...props}>
+          {children}
+        </select>
+      </div>
+    );
+
+    const Badge = ({ children, color = 'gray' }) => {
+      const colors = {
+        green: 'bg-emerald-100 text-emerald-800',
+        red: 'bg-red-100 text-red-800',
+        gray: 'bg-slate-100 text-slate-800',
+      };
+      return <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[color]}`}>{children}</span>;
+    };
+
+    // --- VIEWS ---
+
+    // 1. Inventory View
+    const InventoryView = ({ products, onAddProduct, onDeleteProduct }) => {
+      const [newProduct, setNewProduct] = useState({ name: '', costPrice: '', initialQuantity: '' });
+      
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!newProduct.name || !newProduct.costPrice || !newProduct.initialQuantity) return;
+        onAddProduct({
+          name: newProduct.name,
+          costPrice: Number(newProduct.costPrice),
+          initialQuantity: Number(newProduct.initialQuantity)
+        });
+        setNewProduct({ name: '', costPrice: '', initialQuantity: '' });
+      };
+
+      return (
+        <div className="space-y-6 pb-20 animate-fade-in">
+          <Card className="border-t-4 border-t-secondary">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Icons.ArchiveBox className="w-5 h-5 text-secondary"/> 入库商品
+            </h3>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              <Input label="商品名称" placeholder="如：iPhone 15" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})}/>
+              <Input label="购入单价" type="number" placeholder="0.00" value={newProduct.costPrice} onChange={e => setNewProduct({...newProduct, costPrice: e.target.value})}/>
+              <Input label="购入数量" type="number" placeholder="1" value={newProduct.initialQuantity} onChange={e => setNewProduct({...newProduct, initialQuantity: e.target.value})}/>
+              <Button type="submit" variant="secondary" className="mb-3 w-full">确认入库</Button>
+            </form>
+          </Card>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {products.length === 0 && <p className="text-slate-500 text-center col-span-full py-8">暂无库存</p>}
+            {products.map(p => (
+              <Card key={p.id} className="relative group hover:shadow-md transition-shadow">
+                 <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold text-lg">{p.name}</h4>
+                    <Badge color={p.currentQuantity > 0 ? 'green' : 'red'}>{p.currentQuantity > 0 ? '在售' : '售罄'}</Badge>
+                 </div>
+                 <div className="space-y-1 text-sm text-slate-600 mt-3">
+                   <div className="flex justify-between"><span>库存:</span><span className="font-mono">{p.currentQuantity} / {p.initialQuantity}</span></div>
+                   <div className="flex justify-between"><span>成本:</span><span className="font-mono">{formatCurrency(p.costPrice)}</span></div>
+                 </div>
+                 {p.currentQuantity === p.initialQuantity && (
+                    <button onClick={() => onDeleteProduct(p.id)} className="absolute top-2 right-2 p-1 text-red-300 hover:text-red-500">
+                      <Icons.Trash className="w-4 h-4" />
+                    </button>
+                 )}
+              </Card>
+            ))}
           </div>
         </div>
       );
     };
 
-    const FAB = ({ onClick, icon }) => (
-      <button onClick={onClick} className="fixed right-5 bottom-24 w-14 h-14 bg-primary text-white rounded-full shadow-float flex items-center justify-center active:scale-90 transition-transform z-30">
-        {icon}
-      </button>
-    );
+    // 2. Sales View (Cart System)
+    const SalesView = ({ products, onAddSales }) => {
+      const [cart, setCart] = useState([]);
+      const [selectedProductId, setSelectedProductId] = useState('');
+      const [currentItem, setCurrentItem] = useState({ quantity: '1', unitSellPrice: '' });
+      const [commonInfo, setCommonInfo] = useState({ buyerName: '', trackingNumber: '', shippingCost: '' });
 
-    const Input = ({ label, className = '', ...props }) => (
-      <div className="mb-4">
-        {label && <label className="block text-sm font-medium text-slate-500 mb-1.5 ml-1">{label}</label>}
-        <input className={`w-full px-4 py-3.5 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-lg transition-all ${className}`} {...props} />
-      </div>
-    );
+      const availableProducts = products.filter(p => p.currentQuantity > 0);
+      const selectedProductInfo = products.find(p => p.id === selectedProductId);
 
-    // --- VIEWS ---
+      const getAvailableQuantity = (prodId) => {
+        const prod = products.find(p => p.id === prodId);
+        if (!prod) return 0;
+        const inCart = cart.filter(c => c.productId === prodId).reduce((sum, c) => sum + c.quantity, 0);
+        return Math.max(0, prod.currentQuantity - inCart);
+      };
 
-    // 1. Dashboard
+      const handleAddToCart = () => {
+        if (!selectedProductId || !currentItem.unitSellPrice || !currentItem.quantity) return;
+        const qty = Number(currentItem.quantity);
+        if (qty > getAvailableQuantity(selectedProductId)) { alert("库存不足"); return; }
+        setCart([...cart, {
+          tempId: generateId(),
+          productId: selectedProductId,
+          productName: selectedProductInfo.name,
+          costPrice: selectedProductInfo.costPrice,
+          unitSellPrice: Number(currentItem.unitSellPrice),
+          quantity: qty
+        }]);
+        setSelectedProductId('');
+        setCurrentItem({ quantity: '1', unitSellPrice: '' });
+      };
+
+      const handleSubmitOrder = () => {
+        if (cart.length === 0) return;
+        onAddSales(cart, { ...commonInfo, shippingCost: Number(commonInfo.shippingCost || 0) });
+        setCart([]);
+        setCommonInfo({ buyerName: '', trackingNumber: '', shippingCost: '' });
+      };
+
+      const cartTotal = cart.reduce((sum, item) => sum + (item.unitSellPrice * item.quantity), 0);
+
+      return (
+        <div className="grid lg:grid-cols-2 gap-6 items-start pb-20 animate-fade-in">
+          <Card className="border-t-4 border-t-primary">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Icons.Plus className="w-5 h-5 text-primary"/> 添加商品</h3>
+            <div className="space-y-4">
+              <Select label="选择商品" value={selectedProductId} onChange={e => setSelectedProductId(e.target.value)}>
+                <option value="">-- 请选择 --</option>
+                {availableProducts.map(p => (
+                  <option key={p.id} value={p.id} disabled={getAvailableQuantity(p.id) === 0}>
+                    {p.name} (余: {getAvailableQuantity(p.id)})
+                  </option>
+                ))}
+              </Select>
+              <div className="grid grid-cols-2 gap-4">
+                <Input label="卖出单价" type="number" value={currentItem.unitSellPrice} onChange={e => setCurrentItem({...currentItem, unitSellPrice: e.target.value})}/>
+                <Input label="卖出数量" type="number" value={currentItem.quantity} onChange={e => setCurrentItem({...currentItem, quantity: e.target.value})}/>
+              </div>
+              <Button onClick={handleAddToCart} className="w-full" disabled={!selectedProductId}>加入清单</Button>
+            </div>
+          </Card>
+
+          <div className="space-y-6">
+            <Card className="border-t-4 border-t-slate-500">
+               <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Icons.ShoppingCart className="w-5 h-5"/> 待售清单 ({cart.length})</h3>
+               {cart.length === 0 ? <div className="text-center py-8 text-slate-400 border border-dashed rounded">清单为空</div> : (
+                 <div className="space-y-3 mb-6">
+                   {cart.map(item => (
+                     <div key={item.tempId} className="flex justify-between items-center p-3 bg-slate-50 rounded animate-slide-up">
+                       <div><div className="font-bold">{item.productName}</div><div className="text-xs text-slate-500">{formatCurrency(item.unitSellPrice)} x {item.quantity}</div></div>
+                       <div className="flex items-center gap-3">
+                         <span className="font-mono text-emerald-600">{formatCurrency(item.unitSellPrice * item.quantity)}</span>
+                         <button onClick={() => setCart(cart.filter(c => c.tempId !== item.tempId))}><Icons.XMark className="w-5 h-5 text-slate-400"/></button>
+                       </div>
+                     </div>
+                   ))}
+                   <div className="flex justify-between pt-2 border-t font-bold"><span>总计</span><span className="text-primary">{formatCurrency(cartTotal)}</span></div>
+                 </div>
+               )}
+               {cart.length > 0 && (
+                 <div className="space-y-3">
+                    <Input label="买家/备注 (选填)" value={commonInfo.buyerName} onChange={e => setCommonInfo({...commonInfo, buyerName: e.target.value})}/>
+                    <Input label="快递单号 (选填)" value={commonInfo.trackingNumber} onChange={e => setCommonInfo({...commonInfo, trackingNumber: e.target.value})}/>
+                    <Input label="快递费用 (不计利润)" type="number" value={commonInfo.shippingCost} onChange={e => setCommonInfo({...commonInfo, shippingCost: e.target.value})}/>
+                    <Button onClick={handleSubmitOrder} className="w-full h-12 text-lg">确认出售</Button>
+                 </div>
+               )}
+            </Card>
+          </div>
+        </div>
+      );
+    };
+
+    // 3. History View (Grouped)
+    const HistoryView = ({ sales }) => {
+      const grouped = useMemo(() => {
+        const groups = {};
+        sales.forEach(sale => {
+          const key = sale.transactionId || sale.soldAt;
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(sale);
+        });
+        return Object.values(groups).sort((a, b) => b[0].soldAt - a[0].soldAt);
+      }, [sales]);
+
+      if (sales.length === 0) return <div className="text-center py-10 text-slate-500">暂无记录</div>;
+
+      return (
+        <div className="space-y-4 pb-20 animate-fade-in">
+          {grouped.map((group, idx) => {
+            const first = group[0];
+            const totalProfit = group.reduce((sum, s) => sum + s.profit, 0);
+            const totalSale = group.reduce((sum, s) => sum + s.totalSellPrice, 0);
+            const shipping = group.reduce((sum, s) => sum + (s.shippingCost || 0), 0);
+
+            return (
+              <Card key={idx}>
+                 <div className="border-b pb-2 mb-2 flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2 text-slate-500">
+                       <Icons.Clock className="w-4 h-4"/> {formatDate(first.soldAt)}
+                       {first.buyerName && <span className="text-slate-700 font-bold">· {first.buyerName}</span>}
+                    </div>
+                    <span className={`font-bold font-mono ${totalProfit >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {totalProfit > 0 ? '+' : ''}{formatCurrency(totalProfit)}
+                    </span>
+                 </div>
+                 <div className="space-y-2">
+                   {group.map(sale => (
+                     <div key={sale.id} className="flex justify-between text-sm">
+                        <span>{sale.productName} <span className="text-slate-400">x{sale.quantity}</span></span>
+                        <span className="font-mono">{formatCurrency(sale.totalSellPrice)}</span>
+                     </div>
+                   ))}
+                 </div>
+                 <div className="mt-3 pt-2 border-t text-xs text-slate-400 flex justify-between">
+                    <span>{first.trackingNumber ? `单号: ${first.trackingNumber}` : ''} {shipping > 0 ? `(运费 ${shipping})` : ''}</span>
+                    <span className="font-bold text-slate-600">总收: {formatCurrency(totalSale)}</span>
+                 </div>
+              </Card>
+            );
+          })}
+        </div>
+      );
+    };
+
+    // 4. Dashboard View
     const DashboardView = ({ products, sales }) => {
       const stats = useMemo(() => {
         const profit = sales.reduce((sum, s) => sum + s.profit, 0);
         const revenue = sales.reduce((sum, s) => sum + s.totalSellPrice, 0);
-        const stockCost = products.reduce((sum, p) => sum + (p.currentQuantity * p.costPrice), 0);
-        const soldCount = sales.reduce((sum, s) => sum + s.quantity, 0);
+        const stockVal = products.reduce((sum, p) => sum + (p.currentQuantity * p.costPrice), 0);
         
-        const chartMap = new Map();
-        // Last 7 days
-        for(let i=6; i>=0; i--) {
-           const d = new Date(); d.setDate(d.getDate() - i);
-           const k = d.toLocaleDateString('zh-CN', {month:'numeric', day:'numeric'});
-           chartMap.set(k, 0);
-        }
+        const chartDataMap = new Map();
         sales.forEach(s => {
-          const k = new Date(s.soldAt).toLocaleDateString('zh-CN', {month:'numeric', day:'numeric'});
-          if(chartMap.has(k)) chartMap.set(k, chartMap.get(k) + s.profit);
+          const d = new Date(s.soldAt).toLocaleDateString('zh-CN', {month:'2-digit', day:'2-digit'});
+          chartDataMap.set(d, (chartDataMap.get(d) || 0) + s.profit);
         });
-        const chartData = Array.from(chartMap.entries()).map(([date, profit]) => ({date, profit}));
-        return { profit, revenue, stockCost, soldCount, chartData, hasSales: sales.length > 0 };
+        const chartData = Array.from(chartDataMap.entries()).map(([date, profit]) => ({date, profit})).reverse().slice(0, 7).reverse();
+        return { profit, revenue, stockVal, chartData };
       }, [products, sales]);
 
       return (
-        <div className="px-4 pb-safe space-y-5 animate-fade-in pt-safe">
-           <header className="flex justify-between items-center py-2">
-             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">数据概览</h1>
-           </header>
-
-           <div className="grid grid-cols-2 gap-3">
-              <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-200">
-                 <div className="text-emerald-100 text-sm font-medium mb-1">总利润</div>
-                 <div className="text-2xl font-bold">{formatCurrency(stats.profit)}</div>
-              </Card>
-              <Card className="bg-white border border-slate-100">
-                 <div className="text-slate-400 text-sm font-medium mb-1">总销售额</div>
-                 <div className="text-2xl font-bold text-slate-800">{formatCurrency(stats.revenue)}</div>
-              </Card>
-              <Card className="bg-white border border-slate-100">
-                 <div className="text-slate-400 text-sm font-medium mb-1">库存成本</div>
-                 <div className="text-xl font-bold text-slate-800">{formatCurrency(stats.stockCost)}</div>
-              </Card>
-              <Card className="bg-white border border-slate-100">
-                 <div className="text-slate-400 text-sm font-medium mb-1">已售件数</div>
-                 <div className="text-xl font-bold text-slate-800">{stats.soldCount}</div>
-              </Card>
-           </div>
-
-           <Card className="h-72 flex flex-col">
-              <h3 className="text-slate-800 font-bold mb-4">近七日利润趋势</h3>
-              <div className="flex-1 w-full min-h-0 relative">
-                {stats.hasSales ? (
-                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={stats.chartData} margin={{top:5, right:0, left:-20, bottom:0}}>
-                      <defs>
-                        <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#059669" stopOpacity={0.2}/>
-                          <stop offset="95%" stopColor="#059669" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-                      <XAxis dataKey="date" tick={{fontSize: 11, fill: '#94a3b8'}} axisLine={false} tickLine={false} tickMargin={10} />
-                      <YAxis tick={{fontSize: 11, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={{borderRadius: '12px', border: 'none', boxShadow:'0 10px 15px -3px rgba(0,0,0,0.1)'}} />
-                      <Area type="monotone" dataKey="profit" stroke="#059669" strokeWidth={3} fillOpacity={1} fill="url(#colorProfit)" />
-                    </AreaChart>
-                   </ResponsiveContainer>
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
-                     <Icons.Home className="w-12 h-12 mb-2 opacity-20"/>
-                     <p className="text-sm">暂无数据</p>
-                  </div>
-                )}
-              </div>
-           </Card>
-        </div>
-      );
-    };
-
-    // 2. Inventory
-    const InventoryView = ({ products, onAdd, onDelete }) => {
-      const [isModalOpen, setModalOpen] = useState(false);
-      const [form, setForm] = useState({ name: '', cost: '', qty: '' });
-
-      const handleSubmit = () => {
-        if(!form.name || !form.cost || !form.qty) return;
-        onAdd({ name: form.name, costPrice: Number(form.cost), initialQuantity: Number(form.qty) });
-        setForm({ name: '', cost: '', qty: '' });
-        setModalOpen(false);
-      };
-
-      return (
-        <div className="pt-safe pb-safe min-h-screen">
-          <header className="px-5 py-3 bg-white/80 backdrop-blur-md sticky top-0 z-20 border-b border-slate-100/50">
-             <h1 className="text-xl font-bold text-slate-900">库存管理</h1>
-          </header>
-          
-          <div className="p-4 space-y-3">
-             {products.length === 0 && (
-               <div className="text-center py-20 text-slate-400">
-                  <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Icons.Box className="w-8 h-8 text-slate-300"/>
-                  </div>
-                  <p>空空如也，点击右下角添加</p>
-               </div>
-             )}
-             {products.map(p => (
-               <Card key={p.id} className="flex justify-between items-center relative overflow-hidden active:scale-[0.99] transition-transform duration-100">
-                  <div>
-                     <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-lg text-slate-800">{p.name}</span>
-                        {p.currentQuantity === 0 && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded">售罄</span>}
-                     </div>
-                     <div className="text-xs text-slate-500 flex gap-3">
-                        <span>成本: {formatCurrency(p.costPrice)}</span>
-                        <span>初始: {p.initialQuantity}</span>
-                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                     <span className={`text-2xl font-bold font-mono ${p.currentQuantity < 3 ? 'text-red-500' : 'text-primary'}`}>
-                       {p.currentQuantity}
-                     </span>
-                     <span className="text-[10px] text-slate-400">剩余库存</span>
-                  </div>
-                  {p.currentQuantity === p.initialQuantity && (
-                    <button onClick={(e) => {e.stopPropagation(); if(confirm('删除此商品？')) onDelete(p.id)}} className="absolute top-0 right-0 p-3 text-slate-300 hover:text-red-500">
-                       <Icons.Trash className="w-4 h-4"/>
-                    </button>
-                  )}
-               </Card>
-             ))}
+        <div className="space-y-4 pb-20 animate-fade-in">
+          <div className="grid grid-cols-2 gap-3">
+            <Card className="bg-emerald-50 border-emerald-100 p-3">
+               <div className="text-xs text-emerald-600 mb-1">总利润</div>
+               <div className="text-xl font-bold text-emerald-800">{formatCurrency(stats.profit)}</div>
+            </Card>
+            <Card className="bg-blue-50 border-blue-100 p-3">
+               <div className="text-xs text-blue-600 mb-1">总销售额</div>
+               <div className="text-xl font-bold text-blue-800">{formatCurrency(stats.revenue)}</div>
+            </Card>
+            <Card className="p-3">
+               <div className="text-xs text-slate-500 mb-1">库存成本</div>
+               <div className="text-xl font-bold">{formatCurrency(stats.stockVal)}</div>
+            </Card>
+            <Card className="p-3">
+               <div className="text-xs text-slate-500 mb-1">已售数量</div>
+               <div className="text-xl font-bold">{sales.reduce((a,b)=>a+b.quantity,0)}</div>
+            </Card>
           </div>
-
-          <FAB onClick={() => setModalOpen(true)} icon={<Icons.Plus className="w-8 h-8"/>} />
-
-          <ModalSheet isOpen={isModalOpen} onClose={() => setModalOpen(false)} title="入库新商品">
-             <div className="space-y-4">
-                <Input label="商品名称" placeholder="例如：iPhone 15 Pro" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus/>
-                <div className="flex gap-4">
-                   <Input label="成本单价" type="number" placeholder="0.00" value={form.cost} onChange={e => setForm({...form, cost: e.target.value})}/>
-                   <Input label="入库数量" type="number" placeholder="1" value={form.qty} onChange={e => setForm({...form, qty: e.target.value})}/>
-                </div>
-                <button onClick={handleSubmit} className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all">确认入库</button>
-             </div>
-          </ModalSheet>
-        </div>
-      );
-    };
-
-    // 3. Sales (Cart)
-    const SalesView = ({ products, onSell }) => {
-      const [cart, setCart] = useState([]);
-      const [selectedId, setSelectedId] = useState('');
-      const [qty, setQty] = useState('1');
-      const [price, setPrice] = useState('');
-      const [step, setStep] = useState(1); // 1: Add Items, 2: Checkout Info
-      const [checkoutInfo, setCheckoutInfo] = useState({ buyer:'', track:'', ship:'' });
-
-      const selectedProduct = products.find(p => p.id === selectedId);
-      const available = selectedProduct ? (selectedProduct.currentQuantity - cart.filter(c=>c.pid===selectedId).reduce((a,b)=>a+b.qty,0)) : 0;
-
-      const addToCart = () => {
-         if(!selectedId || !price || Number(qty) <= 0 || Number(qty) > available) return;
-         setCart([...cart, { 
-            tempId: generateId(), pid: selectedId, name: selectedProduct.name, 
-            cost: selectedProduct.costPrice, price: Number(price), qty: Number(qty) 
-         }]);
-         setSelectedId(''); setQty('1'); setPrice('');
-      };
-
-      const total = cart.reduce((a,b) => a + (b.price * b.qty), 0);
-      const profit = cart.reduce((a,b) => a + ((b.price - b.cost) * b.qty), 0);
-
-      const doSell = () => {
-         onSell(cart, checkoutInfo);
-         setCart([]); setStep(1); setCheckoutInfo({buyer:'', track:'', ship:''});
-      };
-
-      return (
-        <div className="pt-safe min-h-screen pb-safe-extra">
-           <header className="px-5 py-3 bg-white sticky top-0 z-10 border-b border-slate-100 flex justify-between items-center">
-              <h1 className="text-xl font-bold text-slate-900">记账</h1>
-              {cart.length > 0 && <span className="bg-primary text-white text-xs px-2 py-1 rounded-full font-bold">{cart.length}</span>}
-           </header>
-
-           {step === 1 && (
-             <div className="p-4 space-y-6">
-               <div className="bg-white p-5 rounded-2xl shadow-sm space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-slate-500 ml-1">选择商品</label>
-                    <select className="w-full mt-1 p-3 bg-slate-50 rounded-xl border-r-8 border-transparent outline-none text-lg font-medium" value={selectedId} onChange={e=>setSelectedId(e.target.value)}>
-                      <option value="">点击选择...</option>
-                      {products.filter(p=>p.currentQuantity>0).map(p => {
-                         // Calc real available considering cart
-                         const inCart = cart.filter(c=>c.pid===p.id).reduce((a,b)=>a+b.qty,0);
-                         const realAvail = p.currentQuantity - inCart;
-                         return <option key={p.id} value={p.id} disabled={realAvail<=0}>{p.name} (余{realAvail})</option>;
-                      })}
-                    </select>
-                  </div>
-                  {selectedId && (
-                    <div className="grid grid-cols-2 gap-4 animate-fade-in">
-                       <Input label="卖出单价" type="number" placeholder="0.00" value={price} onChange={e=>setPrice(e.target.value)} />
-                       <Input label={`数量 (最大${available})`} type="number" value={qty} onChange={e=>setQty(e.target.value)} />
-                    </div>
-                  )}
-                  <button disabled={!selectedId || available<=0} onClick={addToCart} className="w-full py-3 bg-slate-900 disabled:bg-slate-300 text-white rounded-xl font-bold active:scale-[0.98] transition-all">
-                     加入清单
-                  </button>
-               </div>
-
-               {cart.length > 0 && (
-                 <div className="space-y-3">
-                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider ml-1">待售清单</h3>
-                   {cart.map(item => (
-                     <div key={item.tempId} className="bg-white p-4 rounded-xl flex justify-between items-center shadow-sm animate-slide-up">
-                        <div>
-                           <div className="font-bold">{item.name}</div>
-                           <div className="text-xs text-slate-500">{formatCurrency(item.price)} x {item.qty}</div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                           <span className="font-mono font-medium text-emerald-600">{formatCurrency(item.price * item.qty)}</span>
-                           <button onClick={() => setCart(cart.filter(c=>c.tempId!==item.tempId))}><Icons.XMark className="w-5 h-5 text-slate-300"/></button>
-                        </div>
-                     </div>
-                   ))}
-                 </div>
-               )}
-             </div>
-           )}
-
-           {step === 2 && (
-             <div className="p-4 space-y-4 animate-slide-up">
-                <button onClick={() => setStep(1)} className="text-sm text-slate-500 flex items-center gap-1 mb-2">← 返回修改商品</button>
-                <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
-                   <div className="flex justify-between text-emerald-800 font-bold mb-2"><span>预计利润</span><span>{formatCurrency(profit)}</span></div>
-                   <div className="flex justify-between text-sm text-emerald-600"><span>销售总额</span><span>{formatCurrency(total)}</span></div>
-                </div>
-                <div className="bg-white p-5 rounded-2xl shadow-sm space-y-4">
-                   <h3 className="font-bold">附加信息 (选填)</h3>
-                   <Input label="买家昵称" value={checkoutInfo.buyer} onChange={e=>setCheckoutInfo({...checkoutInfo, buyer:e.target.value})} />
-                   <Input label="快递单号" value={checkoutInfo.track} onChange={e=>setCheckoutInfo({...checkoutInfo, track:e.target.value})} />
-                   <Input label="快递运费 (不计利润)" type="number" value={checkoutInfo.ship} onChange={e=>setCheckoutInfo({...checkoutInfo, ship:e.target.value})} />
-                </div>
-             </div>
-           )}
-           
-           {cart.length > 0 && (
-             <div className="fixed bottom-20 left-0 right-0 p-4 bg-white border-t border-slate-100 z-20 pb-safe">
-                <div className="max-w-md mx-auto flex items-center gap-4">
-                   <div className="flex-1">
-                      <div className="text-xs text-slate-500">总计</div>
-                      <div className="text-xl font-bold text-primary font-mono">{formatCurrency(total)}</div>
-                   </div>
-                   {step === 1 ? (
-                     <button onClick={()=>setStep(2)} className="px-8 py-3 bg-primary text-white rounded-xl font-bold shadow-lg shadow-emerald-200 active:scale-95 transition-all">下一步</button>
-                   ) : (
-                     <button onClick={doSell} className="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold shadow-lg active:scale-95 transition-all">确认出售</button>
-                   )}
-                </div>
-             </div>
-           )}
-        </div>
-      );
-    };
-
-    // 4. History
-    const HistoryView = ({ sales }) => {
-      // Group logic
-      const grouped = useMemo(() => {
-        const g = {};
-        sales.forEach(s => {
-           const id = s.transactionId || s.soldAt;
-           if(!g[id]) g[id] = [];
-           g[id].push(s);
-        });
-        return Object.values(g).sort((a,b) => b[0].soldAt - a[0].soldAt);
-      }, [sales]);
-
-      return (
-        <div className="pt-safe pb-safe min-h-screen">
-           <header className="px-5 py-3 bg-white/80 backdrop-blur sticky top-0 z-10 border-b border-slate-100/50">
-              <h1 className="text-xl font-bold text-slate-900">销售明细</h1>
-           </header>
-           <div className="p-4 space-y-4">
-              {grouped.length === 0 && <div className="text-center py-20 text-slate-400">暂无记录</div>}
-              {grouped.map((group, i) => {
-                 const first = group[0];
-                 const totalP = group.reduce((a,b)=>a+b.profit,0);
-                 const totalS = group.reduce((a,b)=>a+b.totalSellPrice,0);
-                 const ship = group.reduce((a,b)=>a+(b.shippingCost||0),0);
-                 
-                 return (
-                   <Card key={i} className="space-y-3">
-                      <div className="flex justify-between items-center pb-2 border-b border-slate-50">
-                         <div className="text-xs text-slate-400 flex items-center gap-1">
-                            <Icons.Clock className="w-3.5 h-3.5"/>
-                            {new Date(first.soldAt).toLocaleString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}
-                         </div>
-                         <div className={`font-bold font-mono ${totalP>=0?'text-primary':'text-red-500'}`}>
-                            {totalP>0?'+':''}{formatCurrency(totalP)}
-                         </div>
-                      </div>
-                      <div className="space-y-2">
-                         {group.map(item => (
-                            <div key={item.id} className="flex justify-between items-center">
-                               <div className="text-sm font-medium text-slate-700">{item.productName} <span className="text-slate-400 text-xs">x{item.quantity}</span></div>
-                               <div className="text-sm font-mono text-slate-500">{formatCurrency(item.totalSellPrice)}</div>
-                            </div>
-                         ))}
-                      </div>
-                      <div className="pt-2 border-t border-slate-50 flex justify-between items-center text-xs">
-                         <div className="text-slate-400">
-                            {first.buyerName && <span className="mr-2 text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{first.buyerName}</span>}
-                            {first.trackingNumber && <span>单号: {first.trackingNumber}</span>}
-                         </div>
-                         <div className="font-bold text-slate-600">实收 {formatCurrency(totalS + ship)}</div>
-                      </div>
-                   </Card>
-                 )
-              })}
-           </div>
+          <Card className="h-64">
+             <h3 className="text-sm font-bold mb-2">近期趋势</h3>
+             {AreaChart ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={stats.chartData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="date" tick={{fontSize: 10}} />
+                    <YAxis tick={{fontSize: 10}} width={40}/>
+                    <Tooltip />
+                    <Area type="monotone" dataKey="profit" stroke="#10b981" fill="#d1fae5" />
+                  </AreaChart>
+                </ResponsiveContainer>
+             ) : (
+                <div className="flex h-full items-center justify-center text-slate-400 text-sm">图表加载中...</div>
+             )}
+          </Card>
         </div>
       );
     };
@@ -491,93 +427,125 @@
     const App = () => {
       const [tab, setTab] = useState('DASHBOARD');
       const [data, setData] = useState(() => {
-         try { return JSON.parse(localStorage.getItem('resell_app_data_v3')) || { products:[], sales:[] }; }
-         catch { return { products:[], sales:[] }; }
+        try {
+           const saved = localStorage.getItem('resell_app_v2');
+           return saved ? JSON.parse(saved) : { products: [], sales: [] };
+        } catch(e) { return { products: [], sales: [] }; }
       });
       const [showSettings, setShowSettings] = useState(false);
 
-      useEffect(() => localStorage.setItem('resell_app_data_v3', JSON.stringify(data)), [data]);
+      useEffect(() => {
+        localStorage.setItem('resell_app_v2', JSON.stringify(data));
+      }, [data]);
 
-      const actions = {
-        addProduct: (p) => {
-           setData(prev => ({ ...prev, products: [{ ...p, id: generateId(), currentQuantity: p.initialQuantity, createdAt: Date.now() }, ...prev.products] }));
-        },
-        deleteProduct: (id) => {
-           setData(prev => ({ ...prev, products: prev.products.filter(p => p.id !== id) }));
-        },
-        addSales: (items, info) => {
-           const tid = generateId();
-           const now = Date.now();
-           const newSales = items.map((item, idx) => ({
-              id: generateId(), transactionId: tid, productId: item.pid, productName: item.name,
-              unitCostPrice: item.cost, unitSellPrice: item.price, quantity: item.qty,
-              totalSellPrice: item.price * item.qty, profit: (item.price - item.cost) * item.qty,
-              soldAt: now, buyerName: info.buyer, trackingNumber: info.track, shippingCost: idx===0 ? Number(info.ship||0) : 0
-           }));
-           // Update Inventory
-           const qtyMap = {}; items.forEach(i => qtyMap[i.pid] = (qtyMap[i.pid]||0) + i.qty);
-           setData(prev => ({
-              products: prev.products.map(p => qtyMap[p.id] ? {...p, currentQuantity: p.currentQuantity - qtyMap[p.id]} : p),
-              sales: [...newSales, ...prev.sales]
-           }));
-           setTab('HISTORY');
-        },
-        importData: (e) => {
-           const f = e.target.files?.[0]; if(!f) return;
-           const r = new FileReader();
-           r.onload = (ev) => {
-              try {
-                 const d = JSON.parse(ev.target.result);
-                 if(d.products && d.sales && confirm('确定覆盖当前数据？')) { setData(d); setShowSettings(false); alert('导入成功'); }
-              } catch(err) { alert('文件无效'); }
-           };
-           r.readAsText(f);
-        }
+      const addProduct = (p) => {
+        setData(prev => ({ 
+          ...prev, 
+          products: [{...p, id: generateId(), currentQuantity: p.initialQuantity, createdAt: Date.now()}, ...prev.products] 
+        }));
+        alert('入库成功');
       };
 
-      const NavBtn = ({ id, icon, label }) => (
-        <button onClick={() => setTab(id)} className={`relative flex flex-col items-center justify-center w-full h-full transition-colors ${tab===id ? 'text-primary' : 'text-slate-400'}`}>
-           {icon}
-           <span className="text-[10px] font-medium mt-1">{label}</span>
-           {tab===id && <span className="absolute -top-1 w-8 h-1 bg-primary rounded-full shadow-lg shadow-emerald-200"></span>}
+      const deleteProduct = (id) => {
+        if(confirm('确定删除?')) setData(prev => ({...prev, products: prev.products.filter(p => p.id !== id)}));
+      };
+
+      const addSales = (items, common) => {
+        const transactionId = generateId();
+        const now = Date.now();
+        const newSales = items.map((item, idx) => ({
+          id: generateId(),
+          transactionId,
+          productId: item.productId,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitCostPrice: item.costPrice,
+          unitSellPrice: item.unitSellPrice,
+          totalSellPrice: item.unitSellPrice * item.quantity,
+          profit: (item.unitSellPrice - item.costPrice) * item.quantity,
+          soldAt: now,
+          buyerName: common.buyerName,
+          trackingNumber: common.trackingNumber,
+          shippingCost: idx === 0 ? common.shippingCost : 0 // Assign shipping to first item only
+        }));
+
+        // Deduct inventory
+        const deductionMap = {};
+        items.forEach(i => deductionMap[i.productId] = (deductionMap[i.productId] || 0) + i.quantity);
+        
+        const updatedProducts = data.products.map(p => {
+          if (deductionMap[p.id]) return { ...p, currentQuantity: p.currentQuantity - deductionMap[p.id] };
+          return p;
+        });
+
+        setData(prev => ({ products: updatedProducts, sales: [...newSales, ...prev.sales] }));
+        alert('记账成功');
+        setTab('HISTORY');
+      };
+
+      const handleImport = (e) => {
+        const file = e.target.files?.[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const parsed = JSON.parse(ev.target.result);
+            if(parsed.products && parsed.sales) {
+              if(confirm('覆盖当前数据?')) setData(parsed);
+            }
+          } catch(e) { alert('文件无效'); }
+        };
+        reader.readAsText(file);
+      };
+
+      const NavBtn = ({ active, icon, label, onClick }) => (
+        <button onClick={onClick} className={`flex flex-col items-center justify-center w-full h-full ${active ? 'text-primary' : 'text-slate-400'}`}>
+          {icon} <span className="text-[10px] mt-1">{label}</span>
         </button>
       );
 
       return (
-        <div className="max-w-lg mx-auto bg-slate-50 min-h-screen shadow-2xl relative">
-           
-           {/* Settings Button (Global) */}
-           <button onClick={() => setShowSettings(true)} className="fixed top-4 right-4 z-40 p-2 bg-white/50 backdrop-blur rounded-full shadow-sm text-slate-500 hover:bg-white transition-all">
-              <Icons.Settings className="w-6 h-6"/>
-           </button>
+        <div className="max-w-md mx-auto min-h-screen bg-slate-50 shadow-2xl overflow-hidden relative">
+          <header className="bg-white p-4 flex justify-between items-center shadow-sm sticky top-0 z-10">
+            <h1 className="text-lg font-bold text-primary flex items-center gap-2">
+              <span className="bg-primary text-white p-1 rounded"><Icons.CurrencyYen className="w-5 h-5"/></span> 记账助手
+            </h1>
+            <button onClick={() => setShowSettings(true)} className="text-slate-500"><Icons.Cog6Tooth className="w-6 h-6"/></button>
+          </header>
 
-           <main className="min-h-screen">
-             {tab === 'DASHBOARD' && <DashboardView products={data.products} sales={data.sales} />}
-             {tab === 'INVENTORY' && <InventoryView products={data.products} onAdd={actions.addProduct} onDelete={actions.deleteProduct} />}
-             {tab === 'SALES' && <SalesView products={data.products} onSell={actions.addSales} />}
-             {tab === 'HISTORY' && <HistoryView sales={data.sales} />}
-           </main>
+          <main className="p-4">
+            {tab === 'DASHBOARD' && <DashboardView products={data.products} sales={data.sales}/>}
+            {tab === 'INVENTORY' && <InventoryView products={data.products} onAddProduct={addProduct} onDeleteProduct={deleteProduct}/>}
+            {tab === 'SALES' && <SalesView products={data.products} onAddSales={addSales}/>}
+            {tab === 'HISTORY' && <HistoryView sales={data.sales}/>}
+          </main>
 
-           <nav className="fixed bottom-0 left-0 right-0 h-[calc(3.5rem+env(safe-area-inset-bottom))] bg-white/90 backdrop-blur-lg border-t border-slate-200/50 flex items-stretch pb-safe z-30 shadow-nav max-w-lg mx-auto">
-              <NavBtn id="DASHBOARD" icon={<Icons.Home className="w-6 h-6"/>} label="概览" />
-              <NavBtn id="INVENTORY" icon={<Icons.Box className="w-6 h-6"/>} label="库存" />
-              <NavBtn id="SALES" icon={<Icons.PlusCircle className="w-7 h-7"/>} label="记账" />
-              <NavBtn id="HISTORY" icon={<Icons.Clock className="w-6 h-6"/>} label="明细" />
-           </nav>
+          <nav className="fixed bottom-0 max-w-md w-full bg-white border-t flex h-16 pb-safe z-20">
+            <NavBtn active={tab==='DASHBOARD'} onClick={()=>setTab('DASHBOARD')} icon={<Icons.ChartBar className="w-6 h-6"/>} label="概览"/>
+            <NavBtn active={tab==='INVENTORY'} onClick={()=>setTab('INVENTORY')} icon={<Icons.ArchiveBox className="w-6 h-6"/>} label="库存"/>
+            <NavBtn active={tab==='SALES'} onClick={()=>setTab('SALES')} icon={<Icons.CurrencyYen className="w-6 h-6"/>} label="记账"/>
+            <NavBtn active={tab==='HISTORY'} onClick={()=>setTab('HISTORY')} icon={<Icons.Clock className="w-6 h-6"/>} label="明细"/>
+          </nav>
 
-           <ModalSheet isOpen={showSettings} onClose={() => setShowSettings(false)} title="数据管理">
-              <div className="space-y-4 pb-6">
-                 <button onClick={() => actions.exportData(data, 'backup')} className="w-full p-4 bg-slate-50 rounded-xl flex items-center gap-3 font-medium text-slate-700 active:bg-slate-100">
-                    <Icons.ArrowDown className="w-6 h-6 text-primary"/> 备份数据 (导出文件)
-                 </button>
-                 <div className="relative">
-                    <input type="file" onChange={actions.importData} className="absolute inset-0 opacity-0 z-10" />
-                    <button className="w-full p-4 bg-slate-50 rounded-xl flex items-center gap-3 font-medium text-slate-700 active:bg-slate-100">
-                       <Icons.ArrowUp className="w-6 h-6 text-secondary"/> 恢复数据 (导入文件)
+          {showSettings && (
+            <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <Card className="w-full max-w-xs animate-slide-up">
+                <h3 className="font-bold mb-4">数据备份</h3>
+                <div className="space-y-3">
+                  <button onClick={() => exportData(data, 'backup')} className="w-full flex items-center gap-2 p-3 bg-slate-100 rounded">
+                    <Icons.ArrowDownTray className="w-5 h-5"/> 导出数据
+                  </button>
+                  <div className="relative">
+                    <input type="file" className="absolute inset-0 opacity-0" onChange={handleImport}/>
+                    <button className="w-full flex items-center gap-2 p-3 bg-slate-100 rounded">
+                      <Icons.ArrowUpTray className="w-5 h-5"/> 导入数据
                     </button>
-                 </div>
-              </div>
-           </ModalSheet>
+                  </div>
+                  <Button variant="outline" className="w-full" onClick={() => setShowSettings(false)}>关闭</Button>
+                </div>
+              </Card>
+            </div>
+          )}
         </div>
       );
     };
@@ -585,5 +553,6 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
+<script type="module" src="/index.tsx"></script>
 </body>
 </html>
