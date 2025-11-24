@@ -20,15 +20,15 @@
           colors: {
             primary: '#07c160', // WeChat Green
             primaryDark: '#06ad56',
-            background: '#f8fafc', 
+            background: '#f7f7f7', // WeChat Gray
             surface: '#ffffff',
             textMain: '#111111',
             textSub: '#7f7f7f',
           },
           boxShadow: {
-            'card': '0 1px 3px rgba(0, 0, 0, 0.05)',
-            'nav': '0 -1px 1px rgba(0,0,0,0.03)',
-            'float': '0 8px 20px rgba(7, 193, 96, 0.3)'
+            'card': '0 1px 2px rgba(0, 0, 0, 0.05)',
+            'nav': '0 -1px 1px rgba(0,0,0,0.05)',
+            'float': '0 4px 16px rgba(7, 193, 96, 0.3)'
           },
           fontFamily: {
             sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
@@ -53,7 +53,7 @@
     body { 
       -webkit-tap-highlight-color: transparent; 
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #f8fafc;
+      background-color: #f7f7f7;
       padding-bottom: env(safe-area-inset-bottom);
       overscroll-behavior-y: none;
     }
@@ -63,19 +63,31 @@
     /* Animations */
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     
     .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .animate-fade-in { animation: fadeIn 0.2s ease-out; }
+    .animate-scale-in { animation: scaleIn 0.15s ease-out; }
 
-    /* Safe Area Utilities */
-    .pb-safe { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); } /* For lists above nav */
-    .pb-safe-extra { padding-bottom: calc(7rem + env(safe-area-inset-bottom)); } /* For lists above fixed footer */
+    /* Utilities */
+    .pb-safe { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); } /* Content padding to avoid nav overlap */
+    .pb-safe-extra { padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
+    .pt-safe { padding-top: max(1rem, env(safe-area-inset-top)); }
     
-    /* Fix for Dynamic Island / Notch */
-    .safe-top-padding { padding-top: env(safe-area-inset-top); }
-    
+    /* Input Reset */
     input, select { -webkit-appearance: none; }
   </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.0",
+    "@heroicons/react/": "https://aistudiocdn.com/@heroicons/react@^2.2.0/"
+  }
+}
+</script>
 </head>
 <body class="text-slate-800 antialiased select-none">
   <div id="root"></div>
@@ -100,7 +112,7 @@
       Outline: {
         Home: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>,
         Box: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>,
-        PlusCircle: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>,
+        PlusCircle: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>, 
         Clock: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
       },
       Solid: {
@@ -151,7 +163,7 @@
     };
 
     const FAB = ({ onClick, icon }) => (
-      <button onClick={onClick} className="fixed right-5 bottom-28 w-14 h-14 bg-primary text-white rounded-full shadow-float flex items-center justify-center active:scale-90 transition-transform z-30">
+      <button onClick={onClick} className="fixed right-5 bottom-24 w-14 h-14 bg-primary text-white rounded-full shadow-float flex items-center justify-center active:scale-90 transition-transform z-30">
         {icon}
       </button>
     );
@@ -163,10 +175,30 @@
       </div>
     );
 
+    const Select = ({ label, className = '', children, ...props }) => (
+      <div className="mb-4">
+        {label && <label className="block text-sm font-medium text-slate-500 mb-1.5 ml-1">{label}</label>}
+        <select className={`w-full px-4 py-3.5 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-base bg-white transition-all appearance-none ${className}`} {...props}>
+          {children}
+        </select>
+      </div>
+    );
+
+    const Button = ({ children, className = '', ...props }) => (
+      <button className={`px-4 py-3 rounded-xl font-bold transition-all active:scale-[0.98] ${className}`} {...props}>
+        {children}
+      </button>
+    );
+    
+    const Badge = ({ children, color }) => {
+       const colors = { green: 'bg-green-100 text-green-700', red: 'bg-red-100 text-red-700', gray: 'bg-slate-100 text-slate-600' };
+       return <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${colors[color]||colors.gray}`}>{children}</span>
+    };
+
     // --- VIEWS ---
 
     // 1. Dashboard
-    const DashboardView = ({ products, sales, onOpenSettings }) => {
+    const DashboardView = ({ products, sales }) => {
       const stats = useMemo(() => {
         const profit = sales.reduce((sum, s) => sum + s.profit, 0);
         const revenue = sales.reduce((sum, s) => sum + s.totalSellPrice, 0);
@@ -188,62 +220,50 @@
       }, [products, sales]);
 
       return (
-        <div className="pb-safe animate-fade-in bg-slate-50 min-h-screen">
-           {/* Sticky Header with Safe Top Padding for Dynamic Island */}
-           <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
-             <div className="flex justify-between items-center px-4 h-14">
-               <h1 className="text-xl font-bold text-slate-900 tracking-tight">概览</h1>
-               <button onClick={onOpenSettings} className="p-2 text-slate-400 hover:text-slate-600">
-                  <Icons.Common.Settings className="w-6 h-6"/>
-               </button>
-             </div>
-           </header>
-
-           <div className="px-4 py-4 space-y-5">
-             <div className="grid grid-cols-2 gap-3">
-                <Card className="bg-gradient-to-br from-[#07c160] to-[#059669] text-white shadow-lg shadow-emerald-100 col-span-2">
-                   <div className="flex flex-col items-center py-2">
-                      <div className="text-emerald-100 text-sm font-medium mb-1">累计总利润</div>
-                      <div className="text-4xl font-bold tracking-tight">{formatCurrency(stats.profit)}</div>
-                   </div>
-                </Card>
-                <Card className="bg-white">
-                   <div className="text-slate-400 text-xs font-medium mb-1">销售额</div>
-                   <div className="text-xl font-bold text-slate-800">{formatCurrency(stats.revenue)}</div>
-                </Card>
-                <Card className="bg-white">
-                   <div className="text-slate-400 text-xs font-medium mb-1">库存成本</div>
-                   <div className="text-xl font-bold text-slate-800">{formatCurrency(stats.stockCost)}</div>
-                </Card>
-             </div>
-
-             <Card className="h-64 flex flex-col">
-                <h3 className="text-slate-800 font-bold text-sm mb-4">近七日趋势</h3>
-                <div className="flex-1 w-full min-h-0 relative">
-                  {stats.hasSales ? (
-                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={stats.chartData} margin={{top:5, right:0, left:-20, bottom:0}}>
-                        <defs>
-                          <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#07c160" stopOpacity={0.2}/>
-                            <stop offset="95%" stopColor="#07c160" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-                        <XAxis dataKey="date" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} tickMargin={10} />
-                        <YAxis tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
-                        <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow:'0 4px 12px rgba(0,0,0,0.08)'}} />
-                        <Area type="monotone" dataKey="profit" stroke="#07c160" strokeWidth={2} fillOpacity={1} fill="url(#colorProfit)" />
-                      </AreaChart>
-                     </ResponsiveContainer>
-                  ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
-                       <p className="text-xs">暂无数据</p>
-                    </div>
-                  )}
-                </div>
-             </Card>
+        <div className="px-4 pb-safe space-y-5 animate-fade-in">
+           <div className="grid grid-cols-2 gap-3 mt-4">
+              <Card className="bg-gradient-to-br from-[#07c160] to-[#059669] text-white shadow-lg shadow-emerald-100 col-span-2">
+                 <div className="flex flex-col items-center py-2">
+                    <div className="text-emerald-100 text-sm font-medium mb-1">累计总利润</div>
+                    <div className="text-4xl font-bold tracking-tight">{formatCurrency(stats.profit)}</div>
+                 </div>
+              </Card>
+              <Card className="bg-white">
+                 <div className="text-slate-400 text-xs font-medium mb-1">销售额</div>
+                 <div className="text-xl font-bold text-slate-800">{formatCurrency(stats.revenue)}</div>
+              </Card>
+              <Card className="bg-white">
+                 <div className="text-slate-400 text-xs font-medium mb-1">库存成本</div>
+                 <div className="text-xl font-bold text-slate-800">{formatCurrency(stats.stockCost)}</div>
+              </Card>
            </div>
+
+           <Card className="h-64 flex flex-col">
+              <h3 className="text-slate-800 font-bold text-sm mb-4">近七日趋势</h3>
+              <div className="flex-1 w-full min-h-0 relative">
+                {stats.hasSales ? (
+                   <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={stats.chartData} margin={{top:5, right:0, left:-20, bottom:0}}>
+                      <defs>
+                        <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#07c160" stopOpacity={0.2}/>
+                          <stop offset="95%" stopColor="#07c160" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                      <XAxis dataKey="date" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} tickMargin={10} />
+                      <YAxis tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
+                      <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow:'0 4px 12px rgba(0,0,0,0.08)'}} />
+                      <Area type="monotone" dataKey="profit" stroke="#07c160" strokeWidth={2} fillOpacity={1} fill="url(#colorProfit)" />
+                    </AreaChart>
+                   </ResponsiveContainer>
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
+                     <p className="text-xs">暂无数据</p>
+                  </div>
+                )}
+              </div>
+           </Card>
         </div>
       );
     };
@@ -261,14 +281,12 @@
       };
 
       return (
-        <div className="pb-safe min-h-screen bg-slate-50">
-          <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
-            <div className="flex justify-between items-center px-4 h-14">
-               <h1 className="text-lg font-bold text-slate-900">库存管理</h1>
-            </div>
+        <div className="pb-safe min-h-screen">
+          <header className="px-5 py-3 sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-slate-200/50 flex justify-between items-center h-[50px] mb-2">
+             <h1 className="text-lg font-bold text-slate-900">库存管理</h1>
           </header>
           
-          <div className="p-4 space-y-3">
+          <div className="px-4 space-y-3">
              {products.length === 0 && (
                <div className="text-center py-20 text-slate-400">
                   <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -313,7 +331,7 @@
                    <Input label="成本单价" type="number" placeholder="0.00" value={form.cost} onChange={e => setForm({...form, cost: e.target.value})}/>
                    <Input label="入库数量" type="number" placeholder="1" value={form.qty} onChange={e => setForm({...form, qty: e.target.value})}/>
                 </div>
-                <button onClick={handleSubmit} className="w-full py-4 bg-primary text-white rounded-xl font-bold text-lg active:scale-[0.98] transition-all">确认入库</button>
+                <Button onClick={handleSubmit} className="w-full bg-primary text-white text-lg">确认入库</Button>
              </div>
           </ModalSheet>
         </div>
@@ -350,27 +368,25 @@
       const profit = cart.reduce((a,b) => a + ((b.price - b.cost) * b.qty), 0);
 
       return (
-        <div className="min-h-screen pb-safe-extra bg-slate-50">
-           <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
-             <div className="flex justify-between items-center px-4 h-14">
-               <h1 className="text-lg font-bold text-slate-900">记账</h1>
-               {cart.length > 0 && <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-bold">{cart.length}</span>}
-             </div>
+        <div className="min-h-screen pb-safe-extra">
+           <header className="px-5 py-3 sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-slate-200/50 flex justify-between items-center h-[50px] mb-2">
+              <h1 className="text-lg font-bold text-slate-900">记账</h1>
+              {cart.length > 0 && <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-bold">{cart.length}</span>}
            </header>
 
            {step === 1 && (
-             <div className="p-4 space-y-6">
+             <div className="px-4 space-y-6">
                <div className="bg-white p-5 rounded-2xl shadow-card space-y-4">
                   <div>
                     <label className="text-sm font-medium text-slate-500 ml-1">选择商品</label>
-                    <select className="w-full mt-2 p-3 bg-slate-50 rounded-xl border-r-8 border-transparent outline-none text-base font-medium" value={selectedId} onChange={e=>setSelectedId(e.target.value)}>
+                    <Select value={selectedId} onChange={e=>setSelectedId(e.target.value)}>
                       <option value="">点击选择...</option>
                       {products.filter(p=>p.currentQuantity>0).map(p => {
                          const inCart = cart.filter(c=>c.pid===p.id).reduce((a,b)=>a+b.qty,0);
                          const realAvail = p.currentQuantity - inCart;
                          return <option key={p.id} value={p.id} disabled={realAvail<=0}>{p.name} (余{realAvail})</option>;
                       })}
-                    </select>
+                    </Select>
                   </div>
                   {selectedId && (
                     <div className="grid grid-cols-2 gap-4 animate-fade-in">
@@ -378,9 +394,9 @@
                        <Input label={`数量 (最大${available})`} type="number" value={qty} onChange={e=>setQty(e.target.value)} />
                     </div>
                   )}
-                  <button disabled={!selectedId || available<=0} onClick={addToCart} className="w-full py-3 bg-primary disabled:bg-slate-300 text-white rounded-xl font-bold active:scale-[0.98] transition-all">
+                  <Button disabled={!selectedId || available<=0} onClick={addToCart} className="w-full bg-primary disabled:bg-slate-300 text-white">
                      加入待售
-                  </button>
+                  </Button>
                </div>
 
                {cart.length > 0 && (
@@ -404,7 +420,7 @@
            )}
 
            {step === 2 && (
-             <div className="p-4 space-y-4 animate-slide-up">
+             <div className="px-4 space-y-4 animate-slide-up">
                 <button onClick={() => setStep(1)} className="text-sm text-slate-500 flex items-center gap-1 mb-2">← 返回修改</button>
                 <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
                    <div className="flex justify-between text-emerald-800 font-bold mb-2"><span>预计利润</span><span>{formatCurrency(profit)}</span></div>
@@ -420,16 +436,16 @@
            )}
            
            {cart.length > 0 && (
-             <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 p-3 bg-white border-t border-slate-100 z-20">
+             <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 p-3 bg-white border-t border-slate-100 z-20">
                 <div className="flex items-center gap-4 px-2">
                    <div className="flex-1">
                       <div className="text-xs text-slate-500">合计</div>
                       <div className="text-xl font-bold text-primary font-mono">{formatCurrency(total)}</div>
                    </div>
                    {step === 1 ? (
-                     <button onClick={()=>setStep(2)} className="px-6 py-2.5 bg-primary text-white rounded-lg font-bold shadow-lg shadow-emerald-100 active:scale-95 transition-all">下一步</button>
+                     <Button onClick={()=>setStep(2)} className="bg-primary text-white shadow-lg shadow-emerald-100">下一步</Button>
                    ) : (
-                     <button onClick={doSell} className="px-6 py-2.5 bg-slate-900 text-white rounded-lg font-bold shadow-lg active:scale-95 transition-all">确认出售</button>
+                     <Button onClick={doSell} className="bg-slate-900 text-white shadow-lg">确认出售</Button>
                    )}
                 </div>
              </div>
@@ -451,13 +467,11 @@
       }, [sales]);
 
       return (
-        <div className="pb-safe min-h-screen bg-slate-50">
-           <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
-             <div className="flex justify-between items-center px-4 h-14">
+        <div className="pb-safe min-h-screen">
+           <header className="px-5 py-3 sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-slate-200/50 flex justify-between items-center h-[50px] mb-2">
               <h1 className="text-lg font-bold text-slate-900">账单明细</h1>
-             </div>
            </header>
-           <div className="p-4 space-y-4">
+           <div className="px-4 space-y-4">
               {grouped.length === 0 && <div className="text-center py-20 text-slate-400">暂无记录</div>}
               {grouped.map((group, i) => {
                  const first = group[0];
@@ -550,27 +564,39 @@
         const isActive = tab === id;
         const Icon = isActive ? Solid : Outline;
         return (
-          <button onClick={() => setTab(id)} className="flex-1 flex flex-col items-center justify-center gap-1 active:bg-slate-50 transition-colors">
+          <button onClick={() => setTab(id)} className="flex-1 flex flex-col items-center justify-center gap-0.5 active:bg-slate-50 transition-colors h-full">
              <Icon className={`w-7 h-7 transition-all ${isActive ? 'text-primary' : 'text-textMain'}`}/>
-             <span className={`text-[12px] font-medium leading-none ${isActive ? 'text-primary' : 'text-textMain'}`}>{label}</span>
+             <span className={`text-[11px] font-medium ${isActive ? 'text-primary' : 'text-textMain'}`}>{label}</span>
           </button>
         );
       };
 
       return (
-        <div className="max-w-lg mx-auto bg-slate-50 min-h-screen relative shadow-2xl">
-           <main className="min-h-screen">
-             {tab === 'DASHBOARD' && <DashboardView products={data.products} sales={data.sales} onOpenSettings={()=>setShowSettings(true)} />}
+        <div className="max-w-lg mx-auto bg-background min-h-screen relative shadow-2xl">
+           {/* Global Header for Safe Area Top - Only used as a spacer/container for top actions */}
+           <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none pt-[env(safe-area-inset-top)]">
+              <div className="max-w-lg mx-auto relative h-14">
+                 <button onClick={() => setShowSettings(true)} className="absolute right-4 top-2 pointer-events-auto p-2 bg-white/80 backdrop-blur rounded-full shadow-sm text-slate-600 hover:text-slate-900 z-50">
+                    <Icons.Common.Settings className="w-5 h-5"/>
+                 </button>
+              </div>
+           </header>
+
+           {/* Add top padding to body content to account for safe area if needed, but views handle it */}
+           <main className="min-h-screen pt-[env(safe-area-inset-top)]">
+             {tab === 'DASHBOARD' && <DashboardView products={data.products} sales={data.sales} />}
              {tab === 'INVENTORY' && <InventoryView products={data.products} onAdd={actions.addProduct} onDelete={actions.deleteProduct} />}
              {tab === 'SALES' && <SalesView products={data.products} onSell={actions.addSales} />}
              {tab === 'HISTORY' && <HistoryView sales={data.sales} />}
            </main>
 
-           <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex items-stretch pb-safe z-30 max-w-lg mx-auto box-content">
-              <NavBtn id="DASHBOARD" Outline={Icons.Outline.Home} Solid={Icons.Solid.Home} label="概览" />
-              <NavBtn id="INVENTORY" Outline={Icons.Outline.Box} Solid={Icons.Solid.Box} label="库存" />
-              <NavBtn id="SALES" Outline={Icons.Outline.PlusCircle} Solid={Icons.Solid.PlusCircle} label="记账" />
-              <NavBtn id="HISTORY" Outline={Icons.Outline.Clock} Solid={Icons.Solid.Clock} label="账单" />
+           <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex flex-col justify-end z-30 max-w-lg mx-auto pb-[env(safe-area-inset-bottom)]">
+              <div className="flex items-center h-14 w-full">
+                 <NavBtn id="DASHBOARD" Outline={Icons.Outline.Home} Solid={Icons.Solid.Home} label="概览" />
+                 <NavBtn id="INVENTORY" Outline={Icons.Outline.Box} Solid={Icons.Solid.Box} label="库存" />
+                 <NavBtn id="SALES" Outline={Icons.Outline.PlusCircle} Solid={Icons.Solid.PlusCircle} label="记账" />
+                 <NavBtn id="HISTORY" Outline={Icons.Outline.Clock} Solid={Icons.Solid.Clock} label="账单" />
+              </div>
            </nav>
 
            <ModalSheet isOpen={showSettings} onClose={() => setShowSettings(false)} title="数据管理">
