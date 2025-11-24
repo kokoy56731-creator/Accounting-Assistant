@@ -20,15 +20,15 @@
           colors: {
             primary: '#07c160', // WeChat Green
             primaryDark: '#06ad56',
-            background: '#f7f7f7', // WeChat Gray
+            background: '#f8fafc', 
             surface: '#ffffff',
             textMain: '#111111',
             textSub: '#7f7f7f',
           },
           boxShadow: {
-            'card': '0 1px 2px rgba(0, 0, 0, 0.05)',
-            'nav': '0 -1px 1px rgba(0,0,0,0.05)',
-            'float': '0 4px 16px rgba(7, 193, 96, 0.3)'
+            'card': '0 1px 3px rgba(0, 0, 0, 0.05)',
+            'nav': '0 -1px 1px rgba(0,0,0,0.03)',
+            'float': '0 8px 20px rgba(7, 193, 96, 0.3)'
           },
           fontFamily: {
             sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
@@ -53,7 +53,7 @@
     body { 
       -webkit-tap-highlight-color: transparent; 
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #f7f7f7;
+      background-color: #f8fafc;
       padding-bottom: env(safe-area-inset-bottom);
       overscroll-behavior-y: none;
     }
@@ -63,18 +63,17 @@
     /* Animations */
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     
     .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .animate-fade-in { animation: fadeIn 0.2s ease-out; }
-    .animate-scale-in { animation: scaleIn 0.15s ease-out; }
 
-    /* Utilities */
-    .pb-safe { padding-bottom: calc(4rem + env(safe-area-inset-bottom)); } /* Content padding to avoid nav overlap */
-    .pb-safe-extra { padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
-    .pt-safe { padding-top: max(1rem, env(safe-area-inset-top)); }
+    /* Safe Area Utilities */
+    .pb-safe { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); } /* For lists above nav */
+    .pb-safe-extra { padding-bottom: calc(7rem + env(safe-area-inset-bottom)); } /* For lists above fixed footer */
     
-    /* Input Reset */
+    /* Fix for Dynamic Island / Notch */
+    .safe-top-padding { padding-top: env(safe-area-inset-top); }
+    
     input, select { -webkit-appearance: none; }
   </style>
 <script type="importmap">
@@ -112,7 +111,7 @@
       Outline: {
         Home: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>,
         Box: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0l-3-3m3 3l3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>,
-        PlusCircle: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>, 
+        PlusCircle: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>,
         Clock: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
       },
       Solid: {
@@ -127,7 +126,8 @@
         XMark: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>,
         Settings: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>,
         ArrowDown: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>,
-        ArrowUp: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
+        ArrowUp: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>,
+        Pencil: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>,
       }
     };
 
@@ -163,7 +163,7 @@
     };
 
     const FAB = ({ onClick, icon }) => (
-      <button onClick={onClick} className="fixed right-5 bottom-24 w-14 h-14 bg-primary text-white rounded-full shadow-float flex items-center justify-center active:scale-90 transition-transform z-30">
+      <button onClick={onClick} className="fixed right-5 bottom-28 w-14 h-14 bg-primary text-white rounded-full shadow-float flex items-center justify-center active:scale-90 transition-transform z-30">
         {icon}
       </button>
     );
@@ -175,30 +175,10 @@
       </div>
     );
 
-    const Select = ({ label, className = '', children, ...props }) => (
-      <div className="mb-4">
-        {label && <label className="block text-sm font-medium text-slate-500 mb-1.5 ml-1">{label}</label>}
-        <select className={`w-full px-4 py-3.5 bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-base bg-white transition-all appearance-none ${className}`} {...props}>
-          {children}
-        </select>
-      </div>
-    );
-
-    const Button = ({ children, className = '', ...props }) => (
-      <button className={`px-4 py-3 rounded-xl font-bold transition-all active:scale-[0.98] ${className}`} {...props}>
-        {children}
-      </button>
-    );
-    
-    const Badge = ({ children, color }) => {
-       const colors = { green: 'bg-green-100 text-green-700', red: 'bg-red-100 text-red-700', gray: 'bg-slate-100 text-slate-600' };
-       return <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${colors[color]||colors.gray}`}>{children}</span>
-    };
-
     // --- VIEWS ---
 
     // 1. Dashboard
-    const DashboardView = ({ products, sales }) => {
+    const DashboardView = ({ products, sales, onOpenSettings }) => {
       const stats = useMemo(() => {
         const profit = sales.reduce((sum, s) => sum + s.profit, 0);
         const revenue = sales.reduce((sum, s) => sum + s.totalSellPrice, 0);
@@ -220,58 +200,74 @@
       }, [products, sales]);
 
       return (
-        <div className="px-4 pb-safe space-y-5 animate-fade-in">
-           <div className="grid grid-cols-2 gap-3 mt-4">
-              <Card className="bg-gradient-to-br from-[#07c160] to-[#059669] text-white shadow-lg shadow-emerald-100 col-span-2">
-                 <div className="flex flex-col items-center py-2">
-                    <div className="text-emerald-100 text-sm font-medium mb-1">累计总利润</div>
-                    <div className="text-4xl font-bold tracking-tight">{formatCurrency(stats.profit)}</div>
-                 </div>
-              </Card>
-              <Card className="bg-white">
-                 <div className="text-slate-400 text-xs font-medium mb-1">销售额</div>
-                 <div className="text-xl font-bold text-slate-800">{formatCurrency(stats.revenue)}</div>
-              </Card>
-              <Card className="bg-white">
-                 <div className="text-slate-400 text-xs font-medium mb-1">库存成本</div>
-                 <div className="text-xl font-bold text-slate-800">{formatCurrency(stats.stockCost)}</div>
-              </Card>
-           </div>
+        <div className="pb-safe animate-fade-in bg-slate-50 min-h-screen">
+           {/* Sticky Header */}
+           <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
+             <div className="flex justify-between items-center px-4 h-14">
+               <h1 className="text-xl font-bold text-slate-900 tracking-tight">概览</h1>
+               <button onClick={onOpenSettings} className="p-2 text-slate-400 hover:text-slate-600">
+                  <Icons.Common.Settings className="w-6 h-6"/>
+               </button>
+             </div>
+           </header>
 
-           <Card className="h-64 flex flex-col">
-              <h3 className="text-slate-800 font-bold text-sm mb-4">近七日趋势</h3>
-              <div className="flex-1 w-full min-h-0 relative">
-                {stats.hasSales ? (
-                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={stats.chartData} margin={{top:5, right:0, left:-20, bottom:0}}>
-                      <defs>
-                        <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#07c160" stopOpacity={0.2}/>
-                          <stop offset="95%" stopColor="#07c160" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
-                      <XAxis dataKey="date" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} tickMargin={10} />
-                      <YAxis tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow:'0 4px 12px rgba(0,0,0,0.08)'}} />
-                      <Area type="monotone" dataKey="profit" stroke="#07c160" strokeWidth={2} fillOpacity={1} fill="url(#colorProfit)" />
-                    </AreaChart>
-                   </ResponsiveContainer>
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
-                     <p className="text-xs">暂无数据</p>
-                  </div>
-                )}
-              </div>
-           </Card>
+           <div className="px-4 py-4 space-y-5">
+             <div className="grid grid-cols-2 gap-3">
+                <Card className="bg-gradient-to-br from-[#07c160] to-[#059669] text-white shadow-lg shadow-emerald-100 col-span-2">
+                   <div className="flex flex-col items-center py-2">
+                      <div className="text-emerald-100 text-sm font-medium mb-1">累计总利润</div>
+                      <div className="text-4xl font-bold tracking-tight">{formatCurrency(stats.profit)}</div>
+                   </div>
+                </Card>
+                <Card className="bg-white">
+                   <div className="text-slate-400 text-xs font-medium mb-1">销售额</div>
+                   <div className="text-xl font-bold text-slate-800">{formatCurrency(stats.revenue)}</div>
+                </Card>
+                <Card className="bg-white">
+                   <div className="text-slate-400 text-xs font-medium mb-1">库存成本</div>
+                   <div className="text-xl font-bold text-slate-800">{formatCurrency(stats.stockCost)}</div>
+                </Card>
+             </div>
+
+             <Card className="h-64 flex flex-col">
+                <h3 className="text-slate-800 font-bold text-sm mb-4">近七日趋势</h3>
+                <div className="flex-1 w-full min-h-0 relative">
+                  {stats.hasSales ? (
+                     <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={stats.chartData} margin={{top:5, right:0, left:-20, bottom:0}}>
+                        <defs>
+                          <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#07c160" stopOpacity={0.2}/>
+                            <stop offset="95%" stopColor="#07c160" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                        <XAxis dataKey="date" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} tickMargin={10} />
+                        <YAxis tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={{borderRadius: '8px', border: 'none', boxShadow:'0 4px 12px rgba(0,0,0,0.08)'}} />
+                        <Area type="monotone" dataKey="profit" stroke="#07c160" strokeWidth={2} fillOpacity={1} fill="url(#colorProfit)" />
+                      </AreaChart>
+                     </ResponsiveContainer>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
+                       <p className="text-xs">暂无数据</p>
+                    </div>
+                  )}
+                </div>
+             </Card>
+           </div>
         </div>
       );
     };
 
     // 2. Inventory
-    const InventoryView = ({ products, onAdd, onDelete }) => {
+    const InventoryView = ({ products, onAdd, onDelete, onUpdate }) => {
       const [isModalOpen, setModalOpen] = useState(false);
+      const [isEditModalOpen, setEditModalOpen] = useState(false);
+      
+      // Forms
       const [form, setForm] = useState({ name: '', cost: '', qty: '' });
+      const [editForm, setEditForm] = useState({ id: '', name: '', cost: '', qty: '' });
 
       const handleSubmit = () => {
         if(!form.name || !form.cost || !form.qty) return;
@@ -280,13 +276,26 @@
         setModalOpen(false);
       };
 
+      const openEdit = (p) => {
+         setEditForm({ id: p.id, name: p.name, cost: p.costPrice, qty: p.currentQuantity });
+         setEditModalOpen(true);
+      };
+
+      const handleUpdate = () => {
+         if(!editForm.name || !editForm.cost) return;
+         onUpdate({ ...editForm, costPrice: Number(editForm.cost), currentQuantity: Number(editForm.qty) });
+         setEditModalOpen(false);
+      };
+
       return (
-        <div className="pb-safe min-h-screen">
-          <header className="px-5 py-3 sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-slate-200/50 flex justify-between items-center h-[50px] mb-2">
-             <h1 className="text-lg font-bold text-slate-900">库存管理</h1>
+        <div className="pb-safe min-h-screen bg-slate-50">
+          <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
+            <div className="flex justify-between items-center px-4 h-14">
+               <h1 className="text-lg font-bold text-slate-900">库存管理</h1>
+            </div>
           </header>
           
-          <div className="px-4 space-y-3">
+          <div className="p-4 space-y-3">
              {products.length === 0 && (
                <div className="text-center py-20 text-slate-400">
                   <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -307,23 +316,29 @@
                         <span>初始 {p.initialQuantity}</span>
                      </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                     <span className={`text-xl font-bold font-mono ${p.currentQuantity < 3 ? 'text-red-500' : 'text-primary'}`}>
-                       {p.currentQuantity}
-                     </span>
-                     <span className="text-[10px] text-slate-400">剩余</span>
-                  </div>
-                  {p.currentQuantity === p.initialQuantity && (
-                    <button onClick={(e) => {e.stopPropagation(); if(confirm('删除此商品？')) onDelete(p.id)}} className="absolute top-0 right-0 p-3 text-slate-300 hover:text-red-500">
-                       <Icons.Common.Trash className="w-4 h-4"/>
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-end gap-1 mr-2">
+                       <span className={`text-xl font-bold font-mono ${p.currentQuantity < 3 ? 'text-red-500' : 'text-primary'}`}>
+                         {p.currentQuantity}
+                       </span>
+                       <span className="text-[10px] text-slate-400">剩余</span>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(p); }} className="p-2 text-slate-400 hover:text-primary bg-slate-50 rounded-full">
+                       <Icons.Common.Pencil className="w-4 h-4"/>
                     </button>
-                  )}
+                    {p.currentQuantity === p.initialQuantity && (
+                      <button onClick={(e) => {e.stopPropagation(); if(confirm('删除此商品？')) onDelete(p.id)}} className="p-2 text-slate-300 hover:text-red-500 bg-slate-50 rounded-full">
+                         <Icons.Common.Trash className="w-4 h-4"/>
+                      </button>
+                    )}
+                  </div>
                </Card>
              ))}
           </div>
 
           <FAB onClick={() => setModalOpen(true)} icon={<Icons.Common.Plus className="w-8 h-8"/>} />
 
+          {/* Add Modal */}
           <ModalSheet isOpen={isModalOpen} onClose={() => setModalOpen(false)} title="入库新商品">
              <div className="space-y-4">
                 <Input label="商品名称" placeholder="例如：iPhone 15 Pro" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus/>
@@ -331,7 +346,18 @@
                    <Input label="成本单价" type="number" placeholder="0.00" value={form.cost} onChange={e => setForm({...form, cost: e.target.value})}/>
                    <Input label="入库数量" type="number" placeholder="1" value={form.qty} onChange={e => setForm({...form, qty: e.target.value})}/>
                 </div>
-                <Button onClick={handleSubmit} className="w-full bg-primary text-white text-lg">确认入库</Button>
+                <button onClick={handleSubmit} className="w-full py-4 bg-primary text-white rounded-xl font-bold text-lg active:scale-[0.98] transition-all">确认入库</button>
+             </div>
+          </ModalSheet>
+
+          {/* Edit Modal */}
+          <ModalSheet isOpen={isEditModalOpen} onClose={() => setEditModalOpen(false)} title="编辑商品">
+             <div className="space-y-4">
+                <Input label="商品名称" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})}/>
+                <Input label="成本单价" type="number" value={editForm.cost} onChange={e => setEditForm({...editForm, cost: e.target.value})}/>
+                <Input label="当前剩余库存 (直接修正)" type="number" value={editForm.qty} onChange={e => setEditForm({...editForm, qty: e.target.value})}/>
+                <div className="text-xs text-slate-400 p-2 bg-slate-50 rounded">注意：修改成本价不影响历史账单。直接修改库存数可用于盘点修正。</div>
+                <button onClick={handleUpdate} className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg active:scale-[0.98] transition-all">保存修改</button>
              </div>
           </ModalSheet>
         </div>
@@ -368,25 +394,27 @@
       const profit = cart.reduce((a,b) => a + ((b.price - b.cost) * b.qty), 0);
 
       return (
-        <div className="min-h-screen pb-safe-extra">
-           <header className="px-5 py-3 sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-slate-200/50 flex justify-between items-center h-[50px] mb-2">
-              <h1 className="text-lg font-bold text-slate-900">记账</h1>
-              {cart.length > 0 && <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-bold">{cart.length}</span>}
+        <div className="min-h-screen pb-safe-extra bg-slate-50">
+           <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
+             <div className="flex justify-between items-center px-4 h-14">
+               <h1 className="text-lg font-bold text-slate-900">记账</h1>
+               {cart.length > 0 && <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-bold">{cart.length}</span>}
+             </div>
            </header>
 
            {step === 1 && (
-             <div className="px-4 space-y-6">
+             <div className="p-4 space-y-6">
                <div className="bg-white p-5 rounded-2xl shadow-card space-y-4">
                   <div>
                     <label className="text-sm font-medium text-slate-500 ml-1">选择商品</label>
-                    <Select value={selectedId} onChange={e=>setSelectedId(e.target.value)}>
+                    <select className="w-full mt-2 p-3 bg-slate-50 rounded-xl border-r-8 border-transparent outline-none text-base font-medium" value={selectedId} onChange={e=>setSelectedId(e.target.value)}>
                       <option value="">点击选择...</option>
                       {products.filter(p=>p.currentQuantity>0).map(p => {
                          const inCart = cart.filter(c=>c.pid===p.id).reduce((a,b)=>a+b.qty,0);
                          const realAvail = p.currentQuantity - inCart;
                          return <option key={p.id} value={p.id} disabled={realAvail<=0}>{p.name} (余{realAvail})</option>;
                       })}
-                    </Select>
+                    </select>
                   </div>
                   {selectedId && (
                     <div className="grid grid-cols-2 gap-4 animate-fade-in">
@@ -394,9 +422,9 @@
                        <Input label={`数量 (最大${available})`} type="number" value={qty} onChange={e=>setQty(e.target.value)} />
                     </div>
                   )}
-                  <Button disabled={!selectedId || available<=0} onClick={addToCart} className="w-full bg-primary disabled:bg-slate-300 text-white">
+                  <button disabled={!selectedId || available<=0} onClick={addToCart} className="w-full py-3 bg-primary disabled:bg-slate-300 text-white rounded-xl font-bold active:scale-[0.98] transition-all">
                      加入待售
-                  </Button>
+                  </button>
                </div>
 
                {cart.length > 0 && (
@@ -420,7 +448,7 @@
            )}
 
            {step === 2 && (
-             <div className="px-4 space-y-4 animate-slide-up">
+             <div className="p-4 space-y-4 animate-slide-up">
                 <button onClick={() => setStep(1)} className="text-sm text-slate-500 flex items-center gap-1 mb-2">← 返回修改</button>
                 <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
                    <div className="flex justify-between text-emerald-800 font-bold mb-2"><span>预计利润</span><span>{formatCurrency(profit)}</span></div>
@@ -436,16 +464,16 @@
            )}
            
            {cart.length > 0 && (
-             <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 p-3 bg-white border-t border-slate-100 z-20">
+             <div className="fixed bottom-[env(safe-area-inset-bottom)] left-0 right-0 p-3 bg-white border-t border-slate-100 z-20 mb-16">
                 <div className="flex items-center gap-4 px-2">
                    <div className="flex-1">
                       <div className="text-xs text-slate-500">合计</div>
                       <div className="text-xl font-bold text-primary font-mono">{formatCurrency(total)}</div>
                    </div>
                    {step === 1 ? (
-                     <Button onClick={()=>setStep(2)} className="bg-primary text-white shadow-lg shadow-emerald-100">下一步</Button>
+                     <button onClick={()=>setStep(2)} className="px-6 py-2.5 bg-primary text-white rounded-lg font-bold shadow-lg shadow-emerald-100 active:scale-95 transition-all">下一步</button>
                    ) : (
-                     <Button onClick={doSell} className="bg-slate-900 text-white shadow-lg">确认出售</Button>
+                     <button onClick={doSell} className="px-6 py-2.5 bg-slate-900 text-white rounded-lg font-bold shadow-lg active:scale-95 transition-all">确认出售</button>
                    )}
                 </div>
              </div>
@@ -455,7 +483,10 @@
     };
 
     // 4. History
-    const HistoryView = ({ sales }) => {
+    const HistoryView = ({ sales, onUpdateTransaction }) => {
+      const [editingTx, setEditingTx] = useState(null);
+      const [editForm, setEditForm] = useState(null);
+
       const grouped = useMemo(() => {
         const g = {};
         sales.forEach(s => {
@@ -466,12 +497,40 @@
         return Object.values(g).sort((a,b) => b[0].soldAt - a[0].soldAt);
       }, [sales]);
 
+      const openEdit = (group) => {
+         const first = group[0];
+         // Prepare form items: id, name, sellPrice
+         const items = group.map(s => ({ id: s.id, name: s.productName, price: s.unitSellPrice, qty: s.quantity }));
+         setEditForm({ 
+            tid: first.transactionId,
+            buyer: first.buyerName || '', 
+            track: first.trackingNumber || '', 
+            ship: group.reduce((a,b)=>a+(b.shippingCost||0),0) || '',
+            items: items
+         });
+         setEditingTx(true);
+      };
+
+      const handleSave = () => {
+         onUpdateTransaction(editForm);
+         setEditingTx(false);
+      };
+
+      const handleItemPriceChange = (id, newPrice) => {
+         setEditForm(prev => ({
+            ...prev,
+            items: prev.items.map(i => i.id === id ? { ...i, price: newPrice } : i)
+         }));
+      };
+
       return (
-        <div className="pb-safe min-h-screen">
-           <header className="px-5 py-3 sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-slate-200/50 flex justify-between items-center h-[50px] mb-2">
+        <div className="pb-safe min-h-screen bg-slate-50">
+           <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
+             <div className="flex justify-between items-center px-4 h-14">
               <h1 className="text-lg font-bold text-slate-900">账单明细</h1>
+             </div>
            </header>
-           <div className="px-4 space-y-4">
+           <div className="p-4 space-y-4">
               {grouped.length === 0 && <div className="text-center py-20 text-slate-400">暂无记录</div>}
               {grouped.map((group, i) => {
                  const first = group[0];
@@ -485,8 +544,13 @@
                          <div className="text-xs text-slate-400 flex items-center gap-1">
                             {new Date(first.soldAt).toLocaleString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}
                          </div>
-                         <div className={`font-bold font-mono ${totalP>=0?'text-primary':'text-red-500'}`}>
-                            {totalP>0?'+':''}{formatCurrency(totalP)}
+                         <div className="flex items-center gap-2">
+                            <div className={`font-bold font-mono ${totalP>=0?'text-primary':'text-red-500'}`}>
+                                {totalP>0?'+':''}{formatCurrency(totalP)}
+                            </div>
+                            <button onClick={()=>openEdit(group)} className="p-1.5 bg-slate-50 rounded-full text-slate-400">
+                               <Icons.Common.Pencil className="w-3.5 h-3.5"/>
+                            </button>
                          </div>
                       </div>
                       <div className="space-y-2">
@@ -508,6 +572,30 @@
                  )
               })}
            </div>
+
+           <ModalSheet isOpen={editingTx} onClose={()=>setEditingTx(false)} title="编辑账单">
+              {editForm && (
+                 <div className="space-y-5">
+                    <div className="space-y-3">
+                       <Input label="买家昵称" value={editForm.buyer} onChange={e=>setEditForm({...editForm, buyer:e.target.value})}/>
+                       <Input label="快递单号" value={editForm.track} onChange={e=>setEditForm({...editForm, track:e.target.value})}/>
+                       <Input label="快递运费" type="number" value={editForm.ship} onChange={e=>setEditForm({...editForm, ship:e.target.value})}/>
+                    </div>
+                    <div className="space-y-3 border-t pt-4">
+                       <h4 className="text-sm font-bold text-slate-500">商品售价修改</h4>
+                       {editForm.items.map(item => (
+                          <div key={item.id} className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg">
+                             <div className="flex-1 text-sm font-medium">{item.name} <span className="text-xs text-slate-400">x{item.qty}</span></div>
+                             <div className="w-24">
+                                <input className="w-full p-2 rounded text-right border" type="number" value={item.price} onChange={(e)=>handleItemPriceChange(item.id, e.target.value)}/>
+                             </div>
+                          </div>
+                       ))}
+                    </div>
+                    <button onClick={handleSave} className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg">保存修改</button>
+                 </div>
+              )}
+           </ModalSheet>
         </div>
       );
     };
@@ -530,6 +618,12 @@
         deleteProduct: (id) => {
            setData(prev => ({ ...prev, products: prev.products.filter(p => p.id !== id) }));
         },
+        updateProduct: (updated) => {
+           setData(prev => ({
+              ...prev,
+              products: prev.products.map(p => p.id === updated.id ? { ...p, name: updated.name, costPrice: updated.costPrice, currentQuantity: updated.currentQuantity } : p)
+           }));
+        },
         addSales: (items, info) => {
            const tid = generateId();
            const now = Date.now();
@@ -546,6 +640,30 @@
               sales: [...newSales, ...prev.sales]
            }));
            setTab('HISTORY');
+        },
+        updateTransaction: (form) => {
+           // Update sales records
+           setData(prev => ({
+              ...prev,
+              sales: prev.sales.map(s => {
+                 if (s.transactionId === form.tid || (!s.transactionId && s.id === form.items[0]?.id)) { // Fallback for legacy
+                    const updatedItem = form.items.find(i => i.id === s.id);
+                    if (updatedItem) {
+                       const newPrice = Number(updatedItem.price);
+                       return {
+                          ...s,
+                          buyerName: form.buyer,
+                          trackingNumber: form.track,
+                          shippingCost: s.shippingCost > 0 ? Number(form.ship) : 0, // Keep shipping on first item logic roughly
+                          unitSellPrice: newPrice,
+                          totalSellPrice: newPrice * s.quantity,
+                          profit: (newPrice - s.unitCostPrice) * s.quantity
+                       };
+                    }
+                 }
+                 return s;
+              })
+           }));
         },
         importData: (e) => {
            const f = e.target.files?.[0]; if(!f) return;
@@ -564,39 +682,27 @@
         const isActive = tab === id;
         const Icon = isActive ? Solid : Outline;
         return (
-          <button onClick={() => setTab(id)} className="flex-1 flex flex-col items-center justify-center gap-0.5 active:bg-slate-50 transition-colors h-full">
+          <button onClick={() => setTab(id)} className="flex-1 flex flex-col items-center justify-center gap-1 active:bg-slate-50 transition-colors">
              <Icon className={`w-7 h-7 transition-all ${isActive ? 'text-primary' : 'text-textMain'}`}/>
-             <span className={`text-[11px] font-medium ${isActive ? 'text-primary' : 'text-textMain'}`}>{label}</span>
+             <span className={`text-[12px] font-medium leading-none ${isActive ? 'text-primary' : 'text-textMain'}`}>{label}</span>
           </button>
         );
       };
 
       return (
-        <div className="max-w-lg mx-auto bg-background min-h-screen relative shadow-2xl">
-           {/* Global Header for Safe Area Top - Only used as a spacer/container for top actions */}
-           <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none pt-[env(safe-area-inset-top)]">
-              <div className="max-w-lg mx-auto relative h-14">
-                 <button onClick={() => setShowSettings(true)} className="absolute right-4 top-2 pointer-events-auto p-2 bg-white/80 backdrop-blur rounded-full shadow-sm text-slate-600 hover:text-slate-900 z-50">
-                    <Icons.Common.Settings className="w-5 h-5"/>
-                 </button>
-              </div>
-           </header>
-
-           {/* Add top padding to body content to account for safe area if needed, but views handle it */}
-           <main className="min-h-screen pt-[env(safe-area-inset-top)]">
-             {tab === 'DASHBOARD' && <DashboardView products={data.products} sales={data.sales} />}
-             {tab === 'INVENTORY' && <InventoryView products={data.products} onAdd={actions.addProduct} onDelete={actions.deleteProduct} />}
+        <div className="max-w-lg mx-auto bg-slate-50 min-h-screen relative shadow-2xl">
+           <main className="min-h-screen">
+             {tab === 'DASHBOARD' && <DashboardView products={data.products} sales={data.sales} onOpenSettings={()=>setShowSettings(true)} />}
+             {tab === 'INVENTORY' && <InventoryView products={data.products} onAdd={actions.addProduct} onDelete={actions.deleteProduct} onUpdate={actions.updateProduct} />}
              {tab === 'SALES' && <SalesView products={data.products} onSell={actions.addSales} />}
-             {tab === 'HISTORY' && <HistoryView sales={data.sales} />}
+             {tab === 'HISTORY' && <HistoryView sales={data.sales} onUpdateTransaction={actions.updateTransaction} />}
            </main>
 
-           <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex flex-col justify-end z-30 max-w-lg mx-auto pb-[env(safe-area-inset-bottom)]">
-              <div className="flex items-center h-14 w-full">
-                 <NavBtn id="DASHBOARD" Outline={Icons.Outline.Home} Solid={Icons.Solid.Home} label="概览" />
-                 <NavBtn id="INVENTORY" Outline={Icons.Outline.Box} Solid={Icons.Solid.Box} label="库存" />
-                 <NavBtn id="SALES" Outline={Icons.Outline.PlusCircle} Solid={Icons.Solid.PlusCircle} label="记账" />
-                 <NavBtn id="HISTORY" Outline={Icons.Outline.Clock} Solid={Icons.Solid.Clock} label="账单" />
-              </div>
+           <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex items-stretch pb-[env(safe-area-inset-bottom)] z-30 max-w-lg mx-auto box-content">
+              <NavBtn id="DASHBOARD" Outline={Icons.Outline.Home} Solid={Icons.Solid.Home} label="概览" />
+              <NavBtn id="INVENTORY" Outline={Icons.Outline.Box} Solid={Icons.Solid.Box} label="库存" />
+              <NavBtn id="SALES" Outline={Icons.Outline.PlusCircle} Solid={Icons.Solid.PlusCircle} label="记账" />
+              <NavBtn id="HISTORY" Outline={Icons.Outline.Clock} Solid={Icons.Solid.Clock} label="账单" />
            </nav>
 
            <ModalSheet isOpen={showSettings} onClose={() => setShowSettings(false)} title="数据管理">
