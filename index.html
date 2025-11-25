@@ -76,17 +76,6 @@
     
     input, select { -webkit-appearance: none; }
   </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.0",
-    "@heroicons/react/": "https://aistudiocdn.com/@heroicons/react@^2.2.0/"
-  }
-}
-</script>
 </head>
 <body class="text-slate-800 antialiased select-none">
   <div id="root"></div>
@@ -134,11 +123,24 @@
     // --- UTILS ---
     const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
     const formatCurrency = (val) => new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(val);
+    
+    // Updated Export Data function using Blob + URL.createObjectURL for better mobile support
     const exportData = (data, filename) => {
-      const link = document.createElement("a");
-      link.href = `data:text/json;chatset=utf-8,${encodeURIComponent(JSON.stringify(data))}`;
-      link.download = `${filename}.json`;
-      link.click();
+      try {
+        const jsonData = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${filename}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        alert('导出失败，请重试');
+        console.error(e);
+      }
     };
 
     // --- UI COMPONENTS ---
@@ -483,7 +485,7 @@
     };
 
     // 4. History
-    const HistoryView = ({ sales, onUpdateTransaction }) => {
+    const HistoryView = ({ sales, onUpdateTransaction, onDeleteTransaction }) => {
       const [editingTx, setEditingTx] = useState(null);
       const [editForm, setEditForm] = useState(null);
 
@@ -523,6 +525,12 @@
          }));
       };
 
+      const handleDelete = (group) => {
+         const first = group[0];
+         const tid = first.transactionId || first.id;
+         onDeleteTransaction(tid);
+      };
+
       return (
         <div className="pb-safe min-h-screen bg-slate-50">
            <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
@@ -548,8 +556,11 @@
                             <div className={`font-bold font-mono ${totalP>=0?'text-primary':'text-red-500'}`}>
                                 {totalP>0?'+':''}{formatCurrency(totalP)}
                             </div>
-                            <button onClick={()=>openEdit(group)} className="p-1.5 bg-slate-50 rounded-full text-slate-400">
+                            <button onClick={()=>openEdit(group)} className="p-1.5 bg-slate-50 hover:bg-slate-100 rounded-full text-slate-400">
                                <Icons.Common.Pencil className="w-3.5 h-3.5"/>
+                            </button>
+                            <button onClick={()=>handleDelete(group)} className="p-1.5 bg-slate-50 hover:bg-red-50 hover:text-red-500 rounded-full text-slate-300">
+                               <Icons.Common.Trash className="w-3.5 h-3.5"/>
                             </button>
                          </div>
                       </div>
@@ -654,7 +665,7 @@
                           ...s,
                           buyerName: form.buyer,
                           trackingNumber: form.track,
-                          shippingCost: s.shippingCost > 0 ? Number(form.ship) : 0, // Keep shipping on first item logic roughly
+                          shippingCost: s.shippingCost > 0 ? Number(form.ship) : 0, 
                           unitSellPrice: newPrice,
                           totalSellPrice: newPrice * s.quantity,
                           profit: (newPrice - s.unitCostPrice) * s.quantity
@@ -665,14 +676,41 @@
               })
            }));
         },
+        deleteTransaction: (tid) => {
+           if (!confirm('确定删除这条账单吗？\n删除后，商品库存会自动恢复。')) return;
+           
+           // 1. Find the sales to delete
+           const salesToDelete = data.sales.filter(s => s.transactionId === tid || (!s.transactionId && s.id === tid));
+           if (salesToDelete.length === 0) return;
+
+           // 2. Calculate inventory restoration
+           const restoreMap = {};
+           salesToDelete.forEach(s => {
+             restoreMap[s.productId] = (restoreMap[s.productId] || 0) + s.quantity;
+           });
+
+           // 3. Update State
+           setData(prev => ({
+             // Restore inventory
+             products: prev.products.map(p => restoreMap[p.id] ? { ...p, currentQuantity: p.currentQuantity + restoreMap[p.id] } : p),
+             // Remove sales
+             sales: prev.sales.filter(s => s.transactionId !== tid && s.id !== tid)
+           }));
+        },
         importData: (e) => {
            const f = e.target.files?.[0]; if(!f) return;
            const r = new FileReader();
            r.onload = (ev) => {
               try {
                  const d = JSON.parse(ev.target.result);
-                 if(d.products && d.sales && confirm('确定覆盖当前数据？')) { setData(d); setShowSettings(false); alert('导入成功'); }
+                 if(d.products && d.sales && confirm('确定覆盖当前数据？')) { 
+                    setData(d); 
+                    setShowSettings(false); 
+                    alert('导入成功'); 
+                 }
               } catch(err) { alert('文件无效'); }
+              // Reset file input value to allow re-selection
+              e.target.value = '';
            };
            r.readAsText(f);
         }
@@ -695,7 +733,7 @@
              {tab === 'DASHBOARD' && <DashboardView products={data.products} sales={data.sales} onOpenSettings={()=>setShowSettings(true)} />}
              {tab === 'INVENTORY' && <InventoryView products={data.products} onAdd={actions.addProduct} onDelete={actions.deleteProduct} onUpdate={actions.updateProduct} />}
              {tab === 'SALES' && <SalesView products={data.products} onSell={actions.addSales} />}
-             {tab === 'HISTORY' && <HistoryView sales={data.sales} onUpdateTransaction={actions.updateTransaction} />}
+             {tab === 'HISTORY' && <HistoryView sales={data.sales} onUpdateTransaction={actions.updateTransaction} onDeleteTransaction={actions.deleteTransaction} />}
            </main>
 
            <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex items-stretch pb-[env(safe-area-inset-bottom)] z-30 max-w-lg mx-auto box-content">
@@ -707,13 +745,15 @@
 
            <ModalSheet isOpen={showSettings} onClose={() => setShowSettings(false)} title="数据管理">
               <div className="space-y-4 pb-6">
-                 <button onClick={() => actions.exportData(data, 'backup')} className="w-full p-4 bg-slate-50 rounded-xl flex items-center gap-3 font-medium text-slate-700 active:bg-slate-100">
-                    <Icons.Common.ArrowDown className="w-6 h-6 text-primary"/> 备份数据
+                 <button onClick={() => exportData(data, `backup_${Date.now()}`)} className="w-full p-4 bg-slate-50 rounded-xl flex items-center gap-3 font-medium text-slate-700 active:bg-slate-100 relative">
+                    <Icons.Common.ArrowDown className="w-6 h-6 text-primary"/> 
+                    <span>备份数据</span>
                  </button>
                  <div className="relative">
-                    <input type="file" onChange={actions.importData} className="absolute inset-0 opacity-0 z-10" />
+                    <input type="file" onChange={actions.importData} className="absolute inset-0 w-full h-full opacity-0 z-10" />
                     <button className="w-full p-4 bg-slate-50 rounded-xl flex items-center gap-3 font-medium text-slate-700 active:bg-slate-100">
-                       <Icons.Common.ArrowUp className="w-6 h-6 text-blue-500"/> 恢复数据
+                       <Icons.Common.ArrowUp className="w-6 h-6 text-blue-500"/> 
+                       <span>恢复数据</span>
                     </button>
                  </div>
               </div>
