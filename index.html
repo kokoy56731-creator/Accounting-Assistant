@@ -68,10 +68,7 @@
     .animate-fade-in { animation: fadeIn 0.2s ease-out; }
 
     /* Safe Area Utilities */
-    .pb-safe { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); } /* For lists above nav */
-    .pb-safe-extra { padding-bottom: calc(7rem + env(safe-area-inset-bottom)); } /* For lists above fixed footer */
-    
-    /* Fix for Dynamic Island / Notch */
+    .pb-safe { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
     .safe-top-padding { padding-top: env(safe-area-inset-top); }
     
     input, select { -webkit-appearance: none; }
@@ -95,7 +92,7 @@
     const Recharts = window.Recharts || {};
     const { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } = Recharts;
 
-    // --- ICONS (Outline & Solid sets for WeChat style) ---
+    // --- ICONS ---
     const Icons = {
       Outline: {
         Home: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>,
@@ -117,6 +114,10 @@
         ArrowDown: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>,
         ArrowUp: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>,
         Pencil: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>,
+        Photo: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>,
+        Funnel: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" /></svg>,
+        ArrowsUpDown: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" /></svg>,
+        Tag: (props) => <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a2.25 2.25 0 00.26-.26l4.854-4.854a2.25 2.25 0 00.26-.26c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" /></svg>,
       }
     };
 
@@ -124,9 +125,13 @@
     const generateId = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
     const formatCurrency = (val) => new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(val);
     
-    // Updated Export Data function using Blob + URL.createObjectURL for better mobile support
-    const exportData = (data, filename) => {
+    // Updated Export: Include Date in filename
+    const exportData = (data, prefix) => {
       try {
+        const now = new Date();
+        const timeStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+        const filename = `${prefix}_${timeStr}`;
+
         const jsonData = JSON.stringify(data, null, 2);
         const blob = new Blob([jsonData], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -143,6 +148,37 @@
       }
     };
 
+    // Compress Image to Data URL
+    const compressImage = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 500; // Limit width for storage size
+            let width = img.width;
+            let height = img.height;
+
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.7)); // 0.7 Quality
+          };
+          img.onerror = (e) => reject(e);
+        };
+        reader.onerror = (e) => reject(e);
+      });
+    };
+
     // --- UI COMPONENTS ---
     const Card = ({ children, className = '', onClick }) => (
       <div onClick={onClick} className={`bg-white rounded-xl shadow-card p-5 ${className}`}>{children}</div>
@@ -153,7 +189,7 @@
       return (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
-          <div className="relative bg-white rounded-t-2xl p-5 shadow-2xl animate-slide-up pb-safe max-h-[85vh] overflow-y-auto">
+          <div className="relative bg-white rounded-t-2xl p-5 shadow-2xl animate-slide-up pb-safe max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-slate-800">{title}</h3>
               <button onClick={onClose} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200"><Icons.Common.XMark className="w-5 h-5"/></button>
@@ -185,7 +221,6 @@
         const profit = sales.reduce((sum, s) => sum + s.profit, 0);
         const revenue = sales.reduce((sum, s) => sum + s.totalSellPrice, 0);
         const stockCost = products.reduce((sum, p) => sum + (p.currentQuantity * p.costPrice), 0);
-        const soldCount = sales.reduce((sum, s) => sum + s.quantity, 0);
         
         const chartMap = new Map();
         for(let i=6; i>=0; i--) {
@@ -198,12 +233,11 @@
           if(chartMap.has(k)) chartMap.set(k, chartMap.get(k) + s.profit);
         });
         const chartData = Array.from(chartMap.entries()).map(([date, profit]) => ({date, profit}));
-        return { profit, revenue, stockCost, soldCount, chartData, hasSales: sales.length > 0 };
+        return { profit, revenue, stockCost, chartData, hasSales: sales.length > 0 };
       }, [products, sales]);
 
       return (
         <div className="pb-safe animate-fade-in bg-slate-50 min-h-screen">
-           {/* Sticky Header */}
            <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
              <div className="flex justify-between items-center px-4 h-14">
                <h1 className="text-xl font-bold text-slate-900 tracking-tight">概览</h1>
@@ -267,19 +301,31 @@
       const [isModalOpen, setModalOpen] = useState(false);
       const [isEditModalOpen, setEditModalOpen] = useState(false);
       
-      // Forms
-      const [form, setForm] = useState({ name: '', cost: '', qty: '' });
-      const [editForm, setEditForm] = useState({ id: '', name: '', cost: '', qty: '' });
+      const [form, setForm] = useState({ name: '', cost: '', qty: '', image: '' });
+      const [editForm, setEditForm] = useState({ id: '', name: '', cost: '', qty: '', image: '' });
+      const fileInputRef = useRef(null);
+      const editFileInputRef = useRef(null);
+
+      const handleImageUpload = async (e, isEdit) => {
+        const file = e.target.files[0];
+        if (file) {
+          try {
+             const base64 = await compressImage(file);
+             if(isEdit) setEditForm(prev => ({...prev, image: base64}));
+             else setForm(prev => ({...prev, image: base64}));
+          } catch(err) { alert('图片处理失败'); }
+        }
+      };
 
       const handleSubmit = () => {
         if(!form.name || !form.cost || !form.qty) return;
-        onAdd({ name: form.name, costPrice: Number(form.cost), initialQuantity: Number(form.qty) });
-        setForm({ name: '', cost: '', qty: '' });
+        onAdd({ name: form.name, costPrice: Number(form.cost), initialQuantity: Number(form.qty), image: form.image });
+        setForm({ name: '', cost: '', qty: '', image: '' });
         setModalOpen(false);
       };
 
       const openEdit = (p) => {
-         setEditForm({ id: p.id, name: p.name, cost: p.costPrice, qty: p.currentQuantity });
+         setEditForm({ id: p.id, name: p.name, cost: p.costPrice, qty: p.currentQuantity, image: p.image || '' });
          setEditModalOpen(true);
       };
 
@@ -307,32 +353,30 @@
                </div>
              )}
              {products.map(p => (
-               <Card key={p.id} className="flex justify-between items-center relative overflow-hidden active:bg-slate-50 transition-colors">
-                  <div>
-                     <div className="flex items-center gap-2 mb-1">
-                        <span className="font-bold text-base text-slate-800">{p.name}</span>
-                        {p.currentQuantity === 0 && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded">售罄</span>}
-                     </div>
-                     <div className="text-xs text-slate-500 flex gap-3">
-                        <span>成本 {formatCurrency(p.costPrice)}</span>
-                        <span>初始 {p.initialQuantity}</span>
-                     </div>
+               <Card key={p.id} className="flex gap-4 relative overflow-hidden active:bg-slate-50 transition-colors">
+                  <div className="w-16 h-16 bg-slate-100 rounded-lg flex-shrink-0 bg-cover bg-center" style={{backgroundImage: p.image ? `url(${p.image})` : 'none'}}>
+                    {!p.image && <Icons.Common.Photo className="w-6 h-6 text-slate-300 m-auto h-full"/>}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex flex-col items-end gap-1 mr-2">
-                       <span className={`text-xl font-bold font-mono ${p.currentQuantity < 3 ? 'text-red-500' : 'text-primary'}`}>
-                         {p.currentQuantity}
-                       </span>
-                       <span className="text-[10px] text-slate-400">剩余</span>
-                    </div>
-                    <button onClick={(e) => { e.stopPropagation(); openEdit(p); }} className="p-2 text-slate-400 hover:text-primary bg-slate-50 rounded-full">
-                       <Icons.Common.Pencil className="w-4 h-4"/>
-                    </button>
-                    {p.currentQuantity === p.initialQuantity && (
-                      <button onClick={(e) => {e.stopPropagation(); if(confirm('删除此商品？')) onDelete(p.id)}} className="p-2 text-slate-300 hover:text-red-500 bg-slate-50 rounded-full">
-                         <Icons.Common.Trash className="w-4 h-4"/>
-                      </button>
-                    )}
+                  <div className="flex-1">
+                     <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-base text-slate-800 line-clamp-1">{p.name}</span>
+                        <div className="flex items-center gap-2">
+                           {p.currentQuantity === 0 && <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded">售罄</span>}
+                           <button onClick={(e) => { e.stopPropagation(); openEdit(p); }} className="p-1.5 bg-slate-50 rounded-full text-slate-400">
+                             <Icons.Common.Pencil className="w-4 h-4"/>
+                           </button>
+                        </div>
+                     </div>
+                     <div className="flex justify-between items-end">
+                       <div className="text-xs text-slate-500 flex flex-col gap-1">
+                          <span>成本 {formatCurrency(p.costPrice)}</span>
+                          <span>初始 {p.initialQuantity}</span>
+                       </div>
+                       <div className="flex flex-col items-end gap-1">
+                          <span className={`text-xl font-bold font-mono ${p.currentQuantity < 3 ? 'text-red-500' : 'text-primary'}`}>{p.currentQuantity}</span>
+                          <span className="text-[10px] text-slate-400">剩余</span>
+                       </div>
+                     </div>
                   </div>
                </Card>
              ))}
@@ -343,6 +387,12 @@
           {/* Add Modal */}
           <ModalSheet isOpen={isModalOpen} onClose={() => setModalOpen(false)} title="入库新商品">
              <div className="space-y-4">
+                <div className="flex justify-center mb-2">
+                   <div onClick={()=>fileInputRef.current.click()} className="w-24 h-24 bg-slate-100 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300 text-slate-400 overflow-hidden relative">
+                      {form.image ? <img src={form.image} className="w-full h-full object-cover"/> : <Icons.Common.Photo className="w-8 h-8"/>}
+                      <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e)=>handleImageUpload(e, false)}/>
+                   </div>
+                </div>
                 <Input label="商品名称" placeholder="例如：iPhone 15 Pro" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus/>
                 <div className="flex gap-4">
                    <Input label="成本单价" type="number" placeholder="0.00" value={form.cost} onChange={e => setForm({...form, cost: e.target.value})}/>
@@ -355,11 +405,19 @@
           {/* Edit Modal */}
           <ModalSheet isOpen={isEditModalOpen} onClose={() => setEditModalOpen(false)} title="编辑商品">
              <div className="space-y-4">
+                <div className="flex justify-center mb-2">
+                   <div onClick={()=>editFileInputRef.current.click()} className="w-24 h-24 bg-slate-100 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300 text-slate-400 overflow-hidden relative">
+                      {editForm.image ? <img src={editForm.image} className="w-full h-full object-cover"/> : <Icons.Common.Photo className="w-8 h-8"/>}
+                      <input type="file" ref={editFileInputRef} className="hidden" accept="image/*" onChange={(e)=>handleImageUpload(e, true)}/>
+                   </div>
+                </div>
                 <Input label="商品名称" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})}/>
                 <Input label="成本单价" type="number" value={editForm.cost} onChange={e => setEditForm({...editForm, cost: e.target.value})}/>
                 <Input label="当前剩余库存 (直接修正)" type="number" value={editForm.qty} onChange={e => setEditForm({...editForm, qty: e.target.value})}/>
-                <div className="text-xs text-slate-400 p-2 bg-slate-50 rounded">注意：修改成本价不影响历史账单。直接修改库存数可用于盘点修正。</div>
-                <button onClick={handleUpdate} className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg active:scale-[0.98] transition-all">保存修改</button>
+                <div className="flex gap-2">
+                   <button onClick={handleUpdate} className="flex-1 py-4 bg-slate-900 text-white rounded-xl font-bold text-lg active:scale-[0.98]">保存修改</button>
+                   <button onClick={() => {if(confirm('确定删除?')) onDelete(editForm.id)}} className="w-16 bg-red-50 text-red-500 rounded-xl flex items-center justify-center"><Icons.Common.Trash className="w-6 h-6"/></button>
+                </div>
              </div>
           </ModalSheet>
         </div>
@@ -373,7 +431,7 @@
       const [qty, setQty] = useState('1');
       const [price, setPrice] = useState('');
       const [step, setStep] = useState(1);
-      const [checkoutInfo, setCheckoutInfo] = useState({ buyer:'', track:'', ship:'' });
+      const [checkoutInfo, setCheckoutInfo] = useState({ buyer:'', track:'', ship:'', category: '闲鱼', remark: '' });
 
       const selectedProduct = products.find(p => p.id === selectedId);
       const available = selectedProduct ? (selectedProduct.currentQuantity - cart.filter(c=>c.pid===selectedId).reduce((a,b)=>a+b.qty,0)) : 0;
@@ -381,7 +439,7 @@
       const addToCart = () => {
          if(!selectedId || !price || Number(qty) <= 0 || Number(qty) > available) return;
          setCart([...cart, { 
-            tempId: generateId(), pid: selectedId, name: selectedProduct.name, 
+            tempId: generateId(), pid: selectedId, name: selectedProduct.name, image: selectedProduct.image,
             cost: selectedProduct.costPrice, price: Number(price), qty: Number(qty) 
          }]);
          setSelectedId(''); setQty('1'); setPrice('');
@@ -389,11 +447,14 @@
 
       const doSell = () => {
          onSell(cart, checkoutInfo);
-         setCart([]); setStep(1); setCheckoutInfo({buyer:'', track:'', ship:''});
+         setCart([]); setStep(1); setCheckoutInfo({buyer:'', track:'', ship:'', category: '闲鱼', remark: ''});
       };
 
       const total = cart.reduce((a,b) => a + (b.price * b.qty), 0);
       const profit = cart.reduce((a,b) => a + ((b.price - b.cost) * b.qty), 0);
+
+      // Unique categories for suggestion
+      const suggestions = ['闲鱼', '转转', '朋友圈', '线下', '其它'];
 
       return (
         <div className="min-h-screen pb-safe-extra bg-slate-50">
@@ -409,14 +470,20 @@
                <div className="bg-white p-5 rounded-2xl shadow-card space-y-4">
                   <div>
                     <label className="text-sm font-medium text-slate-500 ml-1">选择商品</label>
-                    <select className="w-full mt-2 p-3 bg-slate-50 rounded-xl border-r-8 border-transparent outline-none text-base font-medium" value={selectedId} onChange={e=>setSelectedId(e.target.value)}>
-                      <option value="">点击选择...</option>
-                      {products.filter(p=>p.currentQuantity>0).map(p => {
-                         const inCart = cart.filter(c=>c.pid===p.id).reduce((a,b)=>a+b.qty,0);
-                         const realAvail = p.currentQuantity - inCart;
-                         return <option key={p.id} value={p.id} disabled={realAvail<=0}>{p.name} (余{realAvail})</option>;
-                      })}
-                    </select>
+                    <div className="mt-2 flex overflow-x-auto gap-3 pb-2 scrollbar-hide">
+                       {products.filter(p=>p.currentQuantity>0).map(p => {
+                          const inCart = cart.filter(c=>c.pid===p.id).reduce((a,b)=>a+b.qty,0);
+                          const realAvail = p.currentQuantity - inCart;
+                          if(realAvail <= 0) return null;
+                          return (
+                            <div key={p.id} onClick={()=>setSelectedId(p.id)} className={`flex-shrink-0 w-24 flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${selectedId===p.id ? 'border-primary bg-primary/5' : 'border-transparent bg-slate-50'}`}>
+                               <div className="w-16 h-16 bg-slate-200 rounded-lg bg-cover bg-center" style={{backgroundImage: p.image?`url(${p.image})`:'none'}}></div>
+                               <div className="text-xs font-medium text-center line-clamp-1 w-full">{p.name}</div>
+                               <div className="text-[10px] text-slate-400">余{realAvail}</div>
+                            </div>
+                          )
+                       })}
+                    </div>
                   </div>
                   {selectedId && (
                     <div className="grid grid-cols-2 gap-4 animate-fade-in">
@@ -433,10 +500,13 @@
                  <div className="space-y-3">
                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">已选商品</h3>
                    {cart.map(item => (
-                     <div key={item.tempId} className="bg-white p-4 rounded-xl flex justify-between items-center shadow-card animate-slide-up">
-                        <div>
-                           <div className="font-bold">{item.name}</div>
-                           <div className="text-xs text-slate-500">{formatCurrency(item.price)} x {item.qty}</div>
+                     <div key={item.tempId} className="bg-white p-3 rounded-xl flex justify-between items-center shadow-card animate-slide-up">
+                        <div className="flex items-center gap-3">
+                           <div className="w-10 h-10 bg-slate-100 rounded-lg bg-cover bg-center" style={{backgroundImage: item.image?`url(${item.image})`:'none'}}></div>
+                           <div>
+                             <div className="font-bold text-sm">{item.name}</div>
+                             <div className="text-xs text-slate-500">{formatCurrency(item.price)} x {item.qty}</div>
+                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                            <span className="font-mono font-medium text-primary">{formatCurrency(item.price * item.qty)}</span>
@@ -457,10 +527,20 @@
                    <div className="flex justify-between text-sm text-emerald-600"><span>销售总额</span><span>{formatCurrency(total)}</span></div>
                 </div>
                 <div className="bg-white p-5 rounded-2xl shadow-card space-y-4">
-                   <h3 className="font-bold text-sm">备注信息</h3>
+                   <h3 className="font-bold text-sm">订单信息</h3>
+                   <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-500 ml-1">分类标签</label>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                         {suggestions.map(s => (
+                           <button key={s} onClick={()=>setCheckoutInfo({...checkoutInfo, category:s})} className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors ${checkoutInfo.category===s ? 'bg-primary text-white border-primary' : 'bg-white text-slate-500 border-slate-200'}`}>{s}</button>
+                         ))}
+                      </div>
+                      <Input placeholder="输入自定义分类" value={checkoutInfo.category} onChange={e=>setCheckoutInfo({...checkoutInfo, category:e.target.value})} />
+                   </div>
                    <Input label="买家昵称" value={checkoutInfo.buyer} onChange={e=>setCheckoutInfo({...checkoutInfo, buyer:e.target.value})} />
                    <Input label="快递单号" value={checkoutInfo.track} onChange={e=>setCheckoutInfo({...checkoutInfo, track:e.target.value})} />
                    <Input label="快递运费 (不计利润)" type="number" value={checkoutInfo.ship} onChange={e=>setCheckoutInfo({...checkoutInfo, ship:e.target.value})} />
+                   <Input label="其他备注" placeholder="例如：赠品、成色备注等" value={checkoutInfo.remark} onChange={e=>setCheckoutInfo({...checkoutInfo, remark:e.target.value})} />
                 </div>
              </div>
            )}
@@ -488,6 +568,17 @@
     const HistoryView = ({ sales, onUpdateTransaction, onDeleteTransaction }) => {
       const [editingTx, setEditingTx] = useState(null);
       const [editForm, setEditForm] = useState(null);
+      
+      // Sort & Filter State
+      const [sortBy, setSortBy] = useState('timeDesc'); // timeDesc, timeAsc, priceDesc, profitDesc
+      const [filterCat, setFilterCat] = useState('全部');
+      const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+      const allCategories = useMemo(() => {
+         const cats = new Set(['全部']);
+         sales.forEach(s => { if(s.category) cats.add(s.category); });
+         return Array.from(cats);
+      }, [sales]);
 
       const grouped = useMemo(() => {
         const g = {};
@@ -496,18 +587,42 @@
            if(!g[id]) g[id] = [];
            g[id].push(s);
         });
-        return Object.values(g).sort((a,b) => b[0].soldAt - a[0].soldAt);
-      }, [sales]);
+        
+        let groups = Object.values(g);
+
+        // Filter
+        if(filterCat !== '全部') {
+           groups = groups.filter(grp => grp[0].category === filterCat);
+        }
+
+        // Sort
+        groups.sort((a,b) => {
+           const aFirst = a[0]; const bFirst = b[0];
+           const aTotal = a.reduce((sum,i)=>sum+i.totalSellPrice,0);
+           const bTotal = b.reduce((sum,i)=>sum+i.totalSellPrice,0);
+           const aProfit = a.reduce((sum,i)=>sum+i.profit,0);
+           const bProfit = b.reduce((sum,i)=>sum+i.profit,0);
+
+           if(sortBy === 'timeDesc') return bFirst.soldAt - aFirst.soldAt;
+           if(sortBy === 'timeAsc') return aFirst.soldAt - bFirst.soldAt;
+           if(sortBy === 'priceDesc') return bTotal - aTotal;
+           if(sortBy === 'profitDesc') return bProfit - aProfit;
+           return 0;
+        });
+
+        return groups;
+      }, [sales, sortBy, filterCat]);
 
       const openEdit = (group) => {
          const first = group[0];
-         // Prepare form items: id, name, sellPrice
          const items = group.map(s => ({ id: s.id, name: s.productName, price: s.unitSellPrice, qty: s.quantity }));
          setEditForm({ 
             tid: first.transactionId,
             buyer: first.buyerName || '', 
             track: first.trackingNumber || '', 
             ship: group.reduce((a,b)=>a+(b.shippingCost||0),0) || '',
+            category: first.category || '闲鱼',
+            remark: first.remark || '',
             items: items
          });
          setEditingTx(true);
@@ -534,9 +649,27 @@
       return (
         <div className="pb-safe min-h-screen bg-slate-50">
            <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-100 safe-top-padding">
-             <div className="flex justify-between items-center px-4 h-14">
+             <div className="flex justify-between items-center px-4 h-14 relative">
               <h1 className="text-lg font-bold text-slate-900">账单明细</h1>
+              <div className="flex gap-2">
+                 <button onClick={()=>setIsFilterOpen(!isFilterOpen)} className={`p-2 rounded-full ${filterCat!=='全部'?'bg-primary/10 text-primary':'text-slate-400'}`}>
+                    <Icons.Common.Funnel className="w-5 h-5"/>
+                 </button>
+                 <select value={sortBy} onChange={e=>setSortBy(e.target.value)} className="text-xs bg-slate-100 rounded-lg px-2 py-1 outline-none font-bold text-slate-600">
+                    <option value="timeDesc">时间 ↓</option>
+                    <option value="timeAsc">时间 ↑</option>
+                    <option value="priceDesc">金额 ↓</option>
+                    <option value="profitDesc">利润 ↓</option>
+                 </select>
+              </div>
              </div>
+             {isFilterOpen && (
+               <div className="px-4 pb-3 flex gap-2 overflow-x-auto scrollbar-hide bg-white border-b border-slate-50 animate-fade-in">
+                  {allCategories.map(c => (
+                     <button key={c} onClick={()=>setFilterCat(c)} className={`whitespace-nowrap px-3 py-1 rounded-full text-xs font-bold transition-colors ${filterCat===c?'bg-primary text-white':'bg-slate-100 text-slate-500'}`}>{c}</button>
+                  ))}
+               </div>
+             )}
            </header>
            <div className="p-4 space-y-4">
               {grouped.length === 0 && <div className="text-center py-20 text-slate-400">暂无记录</div>}
@@ -548,9 +681,12 @@
                  
                  return (
                    <Card key={i} className="space-y-3">
-                      <div className="flex justify-between items-center pb-2 border-b border-slate-50">
-                         <div className="text-xs text-slate-400 flex items-center gap-1">
-                            {new Date(first.soldAt).toLocaleString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}
+                      <div className="flex justify-between items-start pb-2 border-b border-slate-50">
+                         <div>
+                           <div className="text-xs text-slate-400 flex items-center gap-2 mb-1">
+                              <span>{new Date(first.soldAt).toLocaleString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span>
+                              {first.category && <span className="bg-slate-100 text-slate-500 px-1.5 rounded text-[10px]">{first.category}</span>}
+                           </div>
                          </div>
                          <div className="flex items-center gap-2">
                             <div className={`font-bold font-mono ${totalP>=0?'text-primary':'text-red-500'}`}>
@@ -572,12 +708,15 @@
                             </div>
                          ))}
                       </div>
-                      <div className="pt-2 border-t border-slate-50 flex justify-between items-center text-xs">
-                         <div className="text-slate-400">
-                            {first.buyerName && <span className="mr-2 text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{first.buyerName}</span>}
-                            {first.trackingNumber && <span>{first.trackingNumber}</span>}
+                      <div className="pt-2 border-t border-slate-50 flex flex-col gap-1 text-xs text-slate-400">
+                         <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                               {first.buyerName && <span className="text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">{first.buyerName}</span>}
+                               {first.trackingNumber && <span>{first.trackingNumber}</span>}
+                            </div>
+                            <div className="font-bold text-slate-600">实收 {formatCurrency(totalS + ship)}</div>
                          </div>
-                         <div className="font-bold text-slate-600">实收 {formatCurrency(totalS + ship)}</div>
+                         {first.remark && <div className="mt-1 p-1.5 bg-amber-50 text-amber-600 rounded">备注: {first.remark}</div>}
                       </div>
                    </Card>
                  )
@@ -588,9 +727,11 @@
               {editForm && (
                  <div className="space-y-5">
                     <div className="space-y-3">
+                       <Input label="分类标签" value={editForm.category} onChange={e=>setEditForm({...editForm, category:e.target.value})}/>
                        <Input label="买家昵称" value={editForm.buyer} onChange={e=>setEditForm({...editForm, buyer:e.target.value})}/>
                        <Input label="快递单号" value={editForm.track} onChange={e=>setEditForm({...editForm, track:e.target.value})}/>
                        <Input label="快递运费" type="number" value={editForm.ship} onChange={e=>setEditForm({...editForm, ship:e.target.value})}/>
+                       <Input label="其他备注" value={editForm.remark} onChange={e=>setEditForm({...editForm, remark:e.target.value})}/>
                     </div>
                     <div className="space-y-3 border-t pt-4">
                        <h4 className="text-sm font-bold text-slate-500">商品售价修改</h4>
@@ -615,12 +756,12 @@
     const App = () => {
       const [tab, setTab] = useState('DASHBOARD');
       const [data, setData] = useState(() => {
-         try { return JSON.parse(localStorage.getItem('resell_app_data_v3')) || { products:[], sales:[] }; }
+         try { return JSON.parse(localStorage.getItem('resell_app_data_v4')) || { products:[], sales:[] }; }
          catch { return { products:[], sales:[] }; }
       });
       const [showSettings, setShowSettings] = useState(false);
 
-      useEffect(() => localStorage.setItem('resell_app_data_v3', JSON.stringify(data)), [data]);
+      useEffect(() => localStorage.setItem('resell_app_data_v4', JSON.stringify(data)), [data]);
 
       const actions = {
         addProduct: (p) => {
@@ -632,7 +773,7 @@
         updateProduct: (updated) => {
            setData(prev => ({
               ...prev,
-              products: prev.products.map(p => p.id === updated.id ? { ...p, name: updated.name, costPrice: updated.costPrice, currentQuantity: updated.currentQuantity } : p)
+              products: prev.products.map(p => p.id === updated.id ? { ...p, name: updated.name, costPrice: updated.costPrice, currentQuantity: updated.currentQuantity, image: updated.image } : p)
            }));
         },
         addSales: (items, info) => {
@@ -642,9 +783,10 @@
               id: generateId(), transactionId: tid, productId: item.pid, productName: item.name,
               unitCostPrice: item.cost, unitSellPrice: item.price, quantity: item.qty,
               totalSellPrice: item.price * item.qty, profit: (item.price - item.cost) * item.qty,
-              soldAt: now, buyerName: info.buyer, trackingNumber: info.track, shippingCost: idx===0 ? Number(info.ship||0) : 0
+              soldAt: now, 
+              buyerName: info.buyer, trackingNumber: info.track, shippingCost: idx===0 ? Number(info.ship||0) : 0,
+              category: info.category, remark: info.remark
            }));
-           // Update Inventory
            const qtyMap = {}; items.forEach(i => qtyMap[i.pid] = (qtyMap[i.pid]||0) + i.qty);
            setData(prev => ({
               products: prev.products.map(p => qtyMap[p.id] ? {...p, currentQuantity: p.currentQuantity - qtyMap[p.id]} : p),
@@ -653,11 +795,10 @@
            setTab('HISTORY');
         },
         updateTransaction: (form) => {
-           // Update sales records
            setData(prev => ({
               ...prev,
               sales: prev.sales.map(s => {
-                 if (s.transactionId === form.tid || (!s.transactionId && s.id === form.items[0]?.id)) { // Fallback for legacy
+                 if (s.transactionId === form.tid || (!s.transactionId && s.id === form.items[0]?.id)) { 
                     const updatedItem = form.items.find(i => i.id === s.id);
                     if (updatedItem) {
                        const newPrice = Number(updatedItem.price);
@@ -666,6 +807,8 @@
                           buyerName: form.buyer,
                           trackingNumber: form.track,
                           shippingCost: s.shippingCost > 0 ? Number(form.ship) : 0, 
+                          category: form.category,
+                          remark: form.remark,
                           unitSellPrice: newPrice,
                           totalSellPrice: newPrice * s.quantity,
                           profit: (newPrice - s.unitCostPrice) * s.quantity
@@ -678,22 +821,12 @@
         },
         deleteTransaction: (tid) => {
            if (!confirm('确定删除这条账单吗？\n删除后，商品库存会自动恢复。')) return;
-           
-           // 1. Find the sales to delete
            const salesToDelete = data.sales.filter(s => s.transactionId === tid || (!s.transactionId && s.id === tid));
            if (salesToDelete.length === 0) return;
-
-           // 2. Calculate inventory restoration
            const restoreMap = {};
-           salesToDelete.forEach(s => {
-             restoreMap[s.productId] = (restoreMap[s.productId] || 0) + s.quantity;
-           });
-
-           // 3. Update State
+           salesToDelete.forEach(s => { restoreMap[s.productId] = (restoreMap[s.productId] || 0) + s.quantity; });
            setData(prev => ({
-             // Restore inventory
              products: prev.products.map(p => restoreMap[p.id] ? { ...p, currentQuantity: p.currentQuantity + restoreMap[p.id] } : p),
-             // Remove sales
              sales: prev.sales.filter(s => s.transactionId !== tid && s.id !== tid)
            }));
         },
@@ -704,12 +837,9 @@
               try {
                  const d = JSON.parse(ev.target.result);
                  if(d.products && d.sales && confirm('确定覆盖当前数据？')) { 
-                    setData(d); 
-                    setShowSettings(false); 
-                    alert('导入成功'); 
+                    setData(d); setShowSettings(false); alert('导入成功'); 
                  }
               } catch(err) { alert('文件无效'); }
-              // Reset file input value to allow re-selection
               e.target.value = '';
            };
            r.readAsText(f);
@@ -745,7 +875,7 @@
 
            <ModalSheet isOpen={showSettings} onClose={() => setShowSettings(false)} title="数据管理">
               <div className="space-y-4 pb-6">
-                 <button onClick={() => exportData(data, `backup_${Date.now()}`)} className="w-full p-4 bg-slate-50 rounded-xl flex items-center gap-3 font-medium text-slate-700 active:bg-slate-100 relative">
+                 <button onClick={() => exportData(data, 'backup')} className="w-full p-4 bg-slate-50 rounded-xl flex items-center gap-3 font-medium text-slate-700 active:bg-slate-100 relative">
                     <Icons.Common.ArrowDown className="w-6 h-6 text-primary"/> 
                     <span>备份数据</span>
                  </button>
